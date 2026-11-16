@@ -17,7 +17,15 @@ Enumerate models and efforts accepted by the live dispatch tool. Use only confir
 
 ### 2. Load current state
 
-Load the native model configuration. Read the dedicated pstack-models.md rule file. Missing roles use the defaults below. Preserve customized model choices and panel lengths. Drop retired role labels only from this configuration and show them before confirmation.
+Load the native model configuration. Read the dedicated pstack-models.md rule file. Missing roles use the defaults below. Drop retired role labels only from this configuration and show them before confirmation.
+
+A configuration without `# defaults: 2` predates the new defaults. Parse each value as a model ID and effort before comparing. Recognize only these old native defaults, with an explicit effort and no provider prefix, alias, or extra option:
+
+- In `feature, refactoring`, `bug-fix`, `perf-issue`, `hillclimb`, `reflect tooling`, and `swarm workers`, the old model is `haiku`. Replace a matching value with that role's step 5 default.
+- In `hardest tasks`, the old model is `opus`. Replace a matching value with the step 5 default, including its new starting effort.
+- In `arena runners`, `arena cross-judge pool`, `architect runners`, and `interrogate reviewers`, the old list has exactly two entries, one `opus` and one `haiku`, each with an explicit effort, in either order. Replace only that exact model pair with the role's step 5 list.
+
+Recognized old values may use any supported effort written by the previous budget. Do not classify a model as old by prefix, or replace matching models in other roles or custom panels. Preserve every other model choice, alias, provider-qualified value, and panel length. A configuration already marked `# defaults: 2` keeps its choices. Show every proposed replacement before step 3 confirmation.
 
 ### 3. Budget, map, and confirm
 
@@ -28,9 +36,9 @@ Load the native model configuration. Read the dedicated pstack-models.md rule fi
 - `medium — high reasoning`
 - `small — medium reasoning`
 
-**(b) Apply it.** Use the existing role list and preserve customized models and panel lengths. Budgets unlimited, large, medium, and small request max, xhigh, high, and medium respectively. Change explicit effort tokens on models and inherited aliases. Bare auto and inherit-parent continue inheriting both settings: mark those roles outside budget control and offer an explicit effort before confirmation. Use the highest supported effort at or below the request, or leave the role needing a choice. Save effective supported values.
+**(b) Apply it.** Use the existing role list and preserve customized models and panel lengths. Each role starts at its source default effort. The large budget keeps it, unlimited raises it one step, medium lowers it one step, and small lowers it two steps on max > xhigh > high > medium > low, clamped at the ends. Change explicit effort tokens on models and inherited aliases. Bare auto and inherit-parent continue inheriting both settings: mark those roles outside budget control and offer an explicit effort before confirmation. Use the highest supported effort at or below the request, or leave the role needing a choice. Save effective supported values.
 
-**(c) Show the roles and confirm.** Show every role with its model, marking any real slug not in the detected set as needing a choice. Also list each line step 2 dropped. Ask whether to accept as-is or change specific roles, offering the detected models plus `inherit-parent` and `auto` (both mean: this role runs on the parent chat model, which is how Auto users stay on Auto) as the options. Prefer AskUserQuestion over free text. For panel roles (arena runners, architect runners, interrogate reviewers) the value is a list, and one subagent runs per entry, alias entries included, so the list length sets the count. `arena cross-judge pool` is also a list, but Arena runs one judge. It tries only values from a family other than the parent's, in list order, so order it by preference. An `inherit-parent` or `auto` value never judges. `swarm workers` is the default model for every worker unless a race or comparison assigns another model per arm.
+**(c) Show the roles and confirm.** Show every role with its model, marking any real slug not in the detected set as needing a choice. Also list each line step 2 dropped. Ask whether to accept as-is or change specific roles, offering the detected models plus `inherit-parent` and `auto` (both mean: this role runs on the parent chat model, which is how Auto users stay on Auto) as the options. Prefer AskUserQuestion over free text. For panel roles (arena runners, architect runners, interrogate reviewers) the value is a list, and one subagent runs per entry, alias entries included, so the list length sets the count. `arena cross-judge pool` is also a list, but Arena runs one judge. It tries only values from a vendor other than the parent's, in list order, so order it by preference. Fable and the other Claude models are one vendor. An `inherit-parent` or `auto` value never judges. `swarm workers` is the default model for every worker unless a race or comparison assigns another model per arm.
 
 ### 4. Validate
 
@@ -41,24 +49,21 @@ Validate the model ID and explicit effort separately against the actual dispatch
 Write $CLAUDE_CONFIG_DIR/rules/pstack-models.md (default ~/.claude/rules/pstack-models.md). Replace this dedicated file, preserving other rules and instruction files. Do not write editor-specific frontmatter. Shape:
 
 ```
+# defaults: 2
 # budget: large (xhigh)
-feature, refactoring: haiku xhigh
-bug-fix: haiku xhigh
-perf-issue: haiku xhigh
-hillclimb: haiku xhigh
+feature, refactoring: opus xhigh
+bug-fix: opus xhigh
+perf-issue: opus xhigh
+hillclimb: opus xhigh
 judgment and prose: opus xhigh
-hardest tasks: opus xhigh
-how explorer: haiku xhigh
-how explainer: opus xhigh
-why investigators: haiku xhigh
-why synthesizer: opus xhigh
-reflect tooling: haiku xhigh
+hardest tasks: fable max
+reflect tooling: opus high
 reflect judgment, divergent, synthesizer: opus xhigh
-arena runners: opus xhigh, haiku xhigh
-arena cross-judge pool: opus xhigh, haiku xhigh
-swarm workers: haiku xhigh
-architect runners: opus xhigh, haiku xhigh
-interrogate reviewers: opus xhigh, haiku xhigh
+arena runners: fable high, opus high, haiku high
+arena cross-judge pool: fable high, opus high, haiku high
+swarm workers: opus high
+architect runners: fable high, opus high, haiku high
+interrogate reviewers: fable high, opus high, haiku high
 ```
 
 ### 6. Confirm

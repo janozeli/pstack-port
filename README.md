@@ -35,7 +35,9 @@ Claude Code 2.1.292 or later is required for per-invocation subagent effort. Use
 
 ## How it works
 
-`poteto-mode` selects the original playbook and coordinates its investigation, implementation, review, and proof steps. `setup-pstack` keeps the original role list and budget choices. It keeps the author's two model roles on each host's own models: her Opus roles (judgment, prose, hardest tasks) on `opus` or `gpt-6-astra`, and her Grok roles (code delegates, investigators, second panel seats) on `haiku` or `gpt-6.1-sol`. Setup marks any default the account does not offer as needing a choice, and can add a seat from another provider's CLI for the arena judge.
+`poteto-mode` selects the original playbook and coordinates its investigation, implementation, review, and proof steps. `setup-pstack` keeps the original role list and budget choices. It maps the author's Opus and Fable defaults to `gpt-6-astra` in Codex and their native aliases in Claude Code. Gemini defaults become `gpt-6.1-sol` or `haiku`. Each mapping preserves the source effort and panel size. Setup marks any default the account does not offer as needing a choice, and can add a seat from another provider's CLI for the arena judge.
+
+The mappings keep default dispatch on the host. Fable and Opus both use the existing Codex judgment model, while Gemini uses the existing second model on each host. This preserves panel size and effort rather than claiming equal model capabilities. Codex therefore runs two independent Astra candidates in a default panel. That costs an extra candidate without adding a distinct model. A cross-provider judge still requires an available external seat.
 
 Each package also bundles the `deslop`, `control-cli` and `control-ui` skills that pstack calls, from this repository's MIT-licensed `cursor-team-kit`, with their license.
 

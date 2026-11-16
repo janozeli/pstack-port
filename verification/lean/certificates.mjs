@@ -24,13 +24,14 @@ export const packageTerm = (expected, actual) => {
 // their exact rule identity; Lean reconstructs the source spelling itself.
 export function semanticTerms(step, tag) {
   const terms = [];
-  const modelRule = /^\/\\b(?:claude-opus-5-5|grok-4)/.test(step.rule);
+  const modelRule = /^\/\\b(?:claude-opus-5-5|grok-4|claude-fable-5-2|gemini-4-carbon)/.test(step.rule);
   const commandRule = step.rule.includes('(?<![\\w/:])');
   for (const c of step.chunks) {
     if (modelRule) {
-      const m = c.before.match(/^(claude-opus-5-5|grok-4\.7)-(low|medium|high|xhigh|max)(-fast)?$/);
+      const m = c.before.match(/^(claude-opus-5-5|grok-4\.7|claude-fable-5-2|gemini-4-carbon)-(low|medium|high|xhigh|max)(-fast)?$/);
       assert.ok(m, `Invalid model witness: ${c.before}`);
-      const model = `(⟨.${m[1].startsWith('claude') ? 'opus' : 'grok'},.${m[2]},${!!m[3]}⟩ : Port.SourceModel)`;
+      const family = { 'claude-opus-5-5': 'opus', 'grok-4.7': 'grok', 'claude-fable-5-2': 'fable', 'gemini-4-carbon': 'gemini' }[m[1]];
+      const model = `(⟨.${family},.${m[2]},${!!m[3]}⟩ : Port.SourceModel)`;
       terms.push(`${quote(c.before)} = Port.sourceRender ${model} ∧ ${quote(c.after)} = Port.render (Port.translate .${tag} ${model})`);
     } else if (commandRule) {
       assert.match(c.before, /^\/[a-z0-9]+(?:-[a-z0-9]+)*$/);
