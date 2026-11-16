@@ -19,13 +19,13 @@ Enumerate models and efforts accepted by the live dispatch tool. Use only confir
 
 Load the native model configuration. Read the dedicated pstack-models.md rule file. Missing roles use the defaults below. Drop retired role labels only from this configuration and show them before confirmation.
 
-A configuration without `# defaults: 2` predates the new defaults. Parse each value as a model ID and effort before comparing. Recognize only these old native defaults, with an explicit effort and no provider prefix, alias, or extra option:
+A configuration without `# defaults: 2` predates the new defaults. Parse each value as a model ID and effort before comparing. Recognize only these old native defaults, with an explicit effort and no provider prefix, `inherit-parent`, `auto`, or extra option:
 
 - In `feature, refactoring`, `bug-fix`, `perf-issue`, `hillclimb`, `reflect tooling`, and `swarm workers`, the old model is `haiku`. Replace a matching value with that role's step 5 default.
 - In `hardest tasks`, the old model is `opus`. Replace a matching value with the step 5 default, including its new starting effort.
 - In `arena runners`, `arena cross-judge pool`, `architect runners`, and `interrogate reviewers`, the old list has exactly two entries, one `opus` and one `haiku`, each with an explicit effort, in either order. Replace only that exact model pair with the role's step 5 list.
 
-Recognized old values may use any supported effort written by the previous budget. Do not classify a model as old by prefix, or replace matching models in other roles or custom panels. Preserve every other model choice, alias, provider-qualified value, and panel length. A configuration already marked `# defaults: 2` keeps its choices. Show every proposed replacement before step 3 confirmation.
+Recognized old values may use any supported effort written by the previous budget. Do not classify a model as old by prefix, or replace matching models in other roles or custom panels. Preserve every other model choice, `inherit-parent` or `auto` value, provider-qualified value, and panel length. A configuration already marked `# defaults: 2` keeps its choices. Show every proposed replacement before step 3 confirmation.
 
 ### 3. Budget, map, and confirm
 

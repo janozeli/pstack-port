@@ -51,7 +51,7 @@ Follow the source steps, including its budget labels, role list, panel sizes, co
 - Detect models and efforts from the live dispatch schema and entitlement information available in the session. Do not assume a fixed list of aliases or versions.
 - Defaults: map source Opus to `opus`, Fable to `fable`, and Gemini to `haiku`, preserving each default effort only when available. Apply the supported-effort fallback above; do not invent an unavailable alias. A configuration without `# defaults: 2` migrates only the old native defaults recognized by the generated setup skill; show replacements before confirmation.
 - Budget: start from each role's source default effort. Keep it for `large`, raise it one step for `unlimited`, lower it one step for `medium`, and lower it two steps for `small`, clamped to the effort ladder. Apply this to real models, explicit aliases, and every panel entry. Bare `auto` and `inherit-parent` keep inherited effort on reruns; identify these roles as outside the selected budget and offer an explicit effort before confirming. Save effective supported values.
-- Write only the dedicated `rules/pstack-models.md` file under the Claude configuration directory, without Cursor frontmatter. Keep the comment lines, `# budget` line, and the source's role labels. Replace this configuration file on reruns; preserve every other rule and instruction file.
+- Write only the dedicated `rules/pstack-models.md` file under the Claude configuration directory, without Cursor frontmatter. Keep the comment lines, `# defaults: 2` line, `# budget` line, and the source's role labels. Replace this configuration file on reruns; preserve every other rule and instruction file.
 
 ## Paths
 

@@ -111,18 +111,22 @@ try {
     ['MissingRoles', { ...fixture, nativeRoles: [] }],
     ['UnknownHost', { ...fixture, tree: 'unknown' }],
   ]) assert.throws(() => run([changed], label), /rejected|Empty artifact coverage|Unknown host/);
-  for (const [source, output] of [
-    ['grok-4.7-high', 'gpt-6.1-sol low'],
-    ['claude-fable-5-2-high', 'gpt-6.1-sol low'],
-    ['gemini-4-carbon-high', 'gpt-6.1-sol low'],
-    ['claude-fable-5-2-high', 'gpt-6.1-sol high'],
-    ['gemini-4-carbon-high', 'gpt-6-astra high'],
+  for (const [tree, source, output] of [
+    ['codex', 'grok-4.7-high', 'gpt-6.1-sol low'],
+    ['codex', 'claude-fable-5-2-high', 'gpt-6.1-sol low'],
+    ['codex', 'gemini-4-carbon-high', 'gpt-6.1-sol low'],
+    ['codex', 'claude-fable-5-2-high', 'gpt-6.1-sol high'],
+    ['codex', 'gemini-4-carbon-high', 'gpt-6-astra high'],
+    ['claude-code', 'claude-fable-5-2-high', 'opus high'],
+    ['claude-code', 'gemini-4-carbon-high', 'fable high'],
   ]) {
     const badModel = { input: source, output, steps: [{
       chunks: [{ keep: '', before: source, after: output }], tail: '', output,
     }] };
-    assert.throws(() => run([{ ...fixture, traces: [{ path: 'model.md', ...badModel }] }],
-      `WrongModel-${source}`), /rewrite trace rejected/);
+    assert.throws(() => run([{ ...fixture, tree,
+      nativeRoles: [{ name: 'worker', seats: [tree === 'codex' ? 'gpt-6.1-sol high' : 'haiku high'] }],
+      traces: [{ path: 'model.md', ...badModel }] }],
+      `WrongModel-${tree}-${source}`), /rewrite trace rejected/);
   }
   const badCommand = { input: '/reflect', output: '/pstack:reflect', steps: [{
     chunks: [{ keep: '', before: '/reflect', after: '/pstack:reflect' }], tail: '', output: '/pstack:reflect',
