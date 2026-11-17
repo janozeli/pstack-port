@@ -15,11 +15,16 @@ concurrency:
 
 jobs:
   gate:
-    # The job runs pull request code, so it runs only for branches of this repository, with a read-only token and no cache.
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    # The job runs pull request code, so it has a read-only token and no cache.
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
+      # A skipped job counts as a passed required check, so a fork must fail here, not skip.
+      - name: Refuse a pull request from a fork
+        if: github.event.pull_request.head.repo.full_name != github.repository
+        run: |
+          echo "::error title=Pull request from a fork::The gate runs pull request code only for branches of this repository. The owner must judge and merge a pull request from a fork."
+          exit 1
       - name: Check out the gate from the default branch
         uses: actions/checkout@v4
         with:
