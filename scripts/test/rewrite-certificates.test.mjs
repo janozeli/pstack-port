@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { applyEdits, rewriter } from '../standalone/edits.mjs';
 import { compileMarkdown } from '../standalone/compile.mjs';
+import { EFFORTS, NATIVE_MODELS } from './port-evidence.mjs';
 
 for (const [input, pattern, replacement, all] of [
   ['aXbXc', 'X', "[$`][$&][$']", false],
@@ -45,19 +46,17 @@ test('actual compiler emits a connected trace including native model and command
   }
 });
 
-test('finite lexical examples stay ordinary tests rather than formal-proof counts', () => {
-  const tokens = ['claude-opus-5-5', 'grok-4.7', 'claude-fable-5-2', 'gemini-4-carbon'].flatMap(family =>
-    ['low', 'medium', 'high', 'xhigh', 'max'].flatMap(effort => ['', '-fast'].map(fast => ({
-      source: `${family}-${effort}${fast}`, family, effort,
-    }))));
-  for (const host of ['Codex', 'Claude Code']) {
-    const expected = t => `${{ 'Claude Code': { 'claude-opus-5-5': 'opus', 'grok-4.7': 'opus', 'claude-fable-5-2': 'fable', 'gemini-4-carbon': 'opus' }, Codex: { 'claude-opus-5-5': 'gpt-6.1-sol', 'grok-4.7': 'gpt-6.1-sol', 'claude-fable-5-2': 'gpt-6-astra', 'gemini-4-carbon': 'gpt-6.1-sol' } }[host][t.family]} ${t.effort}`;
+test('every source model spelling compiles to the policy model and keeps its effort', () => {
+  for (const [tree, host] of [['codex', 'Codex'], ['claude-code', 'Claude Code']]) {
+    const tokens = Object.entries(NATIVE_MODELS[tree]).flatMap(([family, native]) =>
+      EFFORTS.flatMap(effort => ['', '-fast'].map(fast => ({ source: `${family}-${effort}${fast}`, native: `${native} ${effort}` }))));
+    assert.equal(tokens.length, 40);
     for (const a of tokens) for (const b of tokens)
-      assert.equal(compileMarkdown('example.md', `${a.source}, ${b.source}`, host, []), `${expected(a)}, ${expected(b)}`);
+      assert.equal(compileMarkdown('example.md', `${a.source}, ${b.source}`, host, []), `${a.native}, ${b.native}`);
   }
 });
 
-test('distributed inventory enumeration cannot hide development dependencies or symlinks', async t => {
+test('package enumeration lists development dependencies and rejects symlinks', async t => {
   const { mkdtempSync, mkdirSync, writeFileSync, symlinkSync, rmSync } = await import('node:fs');
   const { tmpdir } = await import('node:os');
   const { join } = await import('node:path');
@@ -67,8 +66,7 @@ test('distributed inventory enumeration cannot hide development dependencies or 
   mkdirSync(join(dir, 'node_modules'));
   writeFileSync(join(dir, 'node_modules', 'unexpected'), 'bytes');
   writeFileSync(join(dir, '.DS_Store'), 'bytes');
-  assert.deepEqual(walk(dir), []);
-  assert.deepEqual(walk(dir, '', false), ['.DS_Store', 'node_modules/unexpected']);
+  assert.deepEqual(walk(dir), ['.DS_Store', 'node_modules/unexpected']);
   symlinkSync('node_modules/unexpected', join(dir, 'link'));
-  assert.throws(() => walk(dir, '', false), /Unexpected symlink/);
+  assert.throws(() => walk(dir), /Unexpected symlink/);
 });

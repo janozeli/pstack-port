@@ -4,7 +4,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 import { sourceFile } from '../generate-pstack-harness-trees.mjs';
-import { collect, syntaxRules } from './port-evidence.mjs';
+import { collect, EFFORTS, syntaxRules } from './port-evidence.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const bundles = collect(root);
@@ -19,6 +19,8 @@ function difference(expected, actual) {
     changedMode: [...want.keys()].filter(path => have.has(path) && have.get(path).executable !== want.get(path).executable),
   };
 }
+// A model identifier joined to an effort by a hyphen is a source spelling: native seats read `model effort`.
+const sourceModel = new RegExp(String.raw`\b(?=[a-z0-9.-]*\d)[a-z][a-z0-9.]*(?:-[a-z0-9.]+)*-(?:${EFFORTS.join('|')})(?:-fast)?\b`, 'g');
 const same = { missing: [], extra: [], changedBytes: [], changedMode: [] };
 
 test('both packages are checked', () => {
@@ -34,6 +36,12 @@ for (const bundle of bundles) {
     assert.equal(new Set(bundle.expected.map(e => e.path)).size, bundle.expected.length, 'each path is derived once');
     assert.deepEqual(difference(bundle.expected, bundle.actual), same, 'committed package against source');
     assert.deepEqual(difference(bundle.expected, bundle.produced), same, 'renderer output against source');
+  });
+
+  test(`${tree} ships no source model spelling, mapped or not`, () => {
+    const found = bundle.actual.flatMap(({ path }) =>
+      (readFileSync(join(root, 'harness/pstack', tree, path), 'latin1').match(sourceModel) ?? []).map(token => `${path}: ${token}`));
+    assert.deepEqual(found, []);
   });
 
   test(`${tree} role table maps every source seat by the model policy`, () => {

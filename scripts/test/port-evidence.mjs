@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { render, sourceFile, TARGETS, VENDORED } from '../generate-pstack-harness-trees.mjs';
 import { coordinator, readonlyAgent, runtime } from '../standalone/runtime.mjs';
@@ -23,12 +24,21 @@ export function syntaxRules(tree, skills) {
   return rules;
 }
 
-export function walk(root, dir = '', sourceExclusions = true) {
+// Source paths the packages leave out on purpose; plugin.json ships as the host manifests instead.
+// Every other tracked file under pstack/ must ship, so a new upstream path fails until it ships or is listed here.
+export const NOT_SHIPPED = [/^\.cursor-plugin\//, /^\.gitignore$/, /^assets\//, /^automations\//, /^docs\/harness\//, /^plugin\.json$/];
+
+// The file list comes from git, not from a directory walk, so it shares no traversal or skip rule with the generator.
+function tracked(root, dir) {
+  const listed = execFileSync('git', ['ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', dir], { cwd: root, encoding: 'utf8', maxBuffer: 64 << 20 });
+  return listed.split('\0').filter(file => file && existsSync(join(root, file))).map(file => file.slice(dir.length + 1));
+}
+
+export function walk(root, dir = '') {
   return readdirSync(join(root, dir), { withFileTypes: true }).flatMap(entry => {
-    if (sourceExclusions && (entry.name === '.DS_Store' || entry.name === 'node_modules')) return [];
     assert.ok(!entry.isSymbolicLink(), `Unexpected symlink: ${dir}/${entry.name}`);
     const path = dir ? `${dir}/${entry.name}` : entry.name;
-    return entry.isDirectory() ? walk(root, path, sourceExclusions) : [path];
+    return entry.isDirectory() ? walk(root, path) : [path];
   }).sort();
 }
 
@@ -51,8 +61,8 @@ const byPath = entries => entries.sort((a, b) => (a.path < b.path ? -1 : a.path 
 export function collect(root) {
   const source = join(root, 'pstack');
   const skills = [...readdirSync(join(source, 'skills')), ...VENDORED.skills].sort();
-  const vendored = VENDORED.skills.flatMap(skill => [...walk(join(root, VENDORED.root), `skills/${skill}`), `skills/${skill}/LICENSE`]);
-  const sourcePaths = [...walk(source, 'skills'), ...vendored, ...walk(source, 'agents'), ...walk(source, 'docs/guide'), 'README.md', 'LICENSE'].sort();
+  const vendored = VENDORED.skills.flatMap(skill => [...tracked(root, `${VENDORED.root}/skills/${skill}`).map(file => `skills/${skill}/${file}`), `skills/${skill}/LICENSE`]);
+  const sourcePaths = [...tracked(root, 'pstack').filter(path => !NOT_SHIPPED.some(rule => rule.test(path))), ...vendored].sort();
   return TARGETS.map(target => {
     const tree = join(root, 'harness/pstack', target.tree);
     const traces = new Map();
@@ -83,7 +93,7 @@ export function collect(root) {
       traces: [...traces].map(([path, steps]) => ({ path, steps })),
       expected: byPath(expected),
       produced: byPath([...rendered].map(([path, file]) => entry(path, file.bytes, file.executable))),
-      actual: byPath(walk(tree, '', false).map(path => entry(path, readFileSync(join(tree, path)), executable(join(tree, path))))),
+      actual: byPath(walk(tree).map(path => entry(path, readFileSync(join(tree, path)), executable(join(tree, path))))),
       sourceRoles: readRoles(readFileSync(join(source, 'skills/setup-pstack/SKILL.md'), 'utf8')),
       nativeRoles: readRoles(readFileSync(join(tree, 'skills/setup-pstack/SKILL.md'), 'utf8')),
     };
