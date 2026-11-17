@@ -22,6 +22,13 @@ function difference(expected, actual) {
 }
 // A model identifier joined to an effort by a hyphen is a source spelling: native seats read `model effort`.
 const sourceModel = new RegExp(String.raw`\b(?=[a-z0-9.-]*\d)[a-z][a-z0-9.]*(?:-[a-z0-9.]+)*-(?:${EFFORTS.join('|')})(?:-fast)?\b`, 'g');
+// Spellings only one package may contain. A seat on the other provider is written `provider:model effort`, so it is not a native seat.
+const HOST_ONLY = {
+  codex: [/\$pstack:/, /\bspawn_agent\b/, /\$CODEX_HOME\b/, /\.agents\/skills\//, /\.codex-plugin\b/, /\bAGENTS\.md\b/, /\brequest_user_input\b/, /\bcodex -p poteto\b/,
+    new RegExp(String.raw`(?<![:\w])gpt-6[\w.-]*`)],
+  'claude-code': [/\/pstack:/, /\$CLAUDE_CONFIG_DIR\b/, /\.claude\/skills\//, /\.claude-plugin\b/, /\bpstack-models\.md\b/, /\bAskUserQuestion\b/, /\bclaude --agent\b/, /\bCLAUDE_SESSION_ID\b/,
+    new RegExp(String.raw`(?<![:\w])(?:opus|fable|haiku|sonnet) (?:${EFFORTS.join('|')})\b`)],
+};
 const same = { missing: [], extra: [], changedBytes: [], changedMode: [] };
 
 test('both packages are checked', () => {
@@ -42,6 +49,15 @@ for (const bundle of bundles) {
   test(`${tree} ships no source model spelling, mapped or not`, () => {
     const found = bundle.actual.flatMap(({ path }) =>
       (readFileSync(join(root, 'harness/pstack', tree, path), 'latin1').match(sourceModel) ?? []).map(token => `${path}: ${token}`));
+    assert.deepEqual(found, []);
+  });
+
+  test(`${tree} ships no spelling that belongs to the other host`, () => {
+    const foreign = Object.entries(HOST_ONLY).filter(([host]) => host !== tree).flatMap(([, spellings]) => spellings);
+    const found = bundle.actual.flatMap(({ path }) => {
+      const text = readFileSync(join(root, 'harness/pstack', tree, path), 'latin1');
+      return foreign.flatMap(spelling => (text.match(spelling) ? [`${path}: ${text.match(spelling)[0]}`] : []));
+    });
     assert.deepEqual(found, []);
   });
 
