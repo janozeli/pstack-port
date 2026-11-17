@@ -13,7 +13,7 @@ Write `$CLAUDE_CONFIG_DIR/rules/pstack-models.md`, an always-applied rule that s
 
 ### 1. Detect available models
 
-Enumerate models and efforts accepted by the live dispatch tool. Use only confirmed available choices. Inherited aliases are allowed, but explicit efforts must also be supported. Read docs/runtime.md for the native configuration location and dispatch fields. Then detect seats on other providers: run `--version` for each of `codex`, `claude` and `grok` other than this host, and offer each one that answers as `<provider>:<model> <effort>` choices for the arena cross-judge pool, whose judge answers without writing files, so its verdict keeps a family other than the parent's. Roles that write candidates, repros or tests, such as arena and architect runners and interrogate reviewers, keep native or T3 seats. In T3, the providers `orchestrator_capabilities` lists are the preferred route.
+Enumerate models and efforts accepted by the live dispatch tool. Use only confirmed available choices. Inherited aliases are allowed, but explicit efforts must also be supported. Read docs/runtime.md for the native configuration location and dispatch fields. Then detect seats on other providers: run `--version` for each of `codex`, `claude` and `grok` other than this host, and offer each one that answers as `<provider>:<model> <effort>` choices for the arena cross-judge pool, whose judge answers without writing files, so its verdict keeps a family other than the parent's. Roles that write candidates, repros or tests, such as arena and architect runners and interrogate reviewers, keep native or T3 seats. In T3, the providers `orchestrator_capabilities` lists are the preferred route. When `codex` is among them or answers, ask whether to use the two-provider defaults in step 5.
 
 ### 2. Load current state
 
@@ -59,12 +59,14 @@ judgment and prose: opus xhigh
 hardest tasks: fable max
 reflect tooling: opus high
 reflect judgment, divergent, synthesizer: opus xhigh
-arena runners: fable high, opus high, haiku high
-arena cross-judge pool: fable high, opus high, haiku high
+arena runners: fable high, opus high, opus high
+arena cross-judge pool: fable high, opus high, opus high
 swarm workers: opus high
-architect runners: fable high, opus high, haiku high
-interrogate reviewers: fable high, opus high, haiku high
+architect runners: fable high, opus high, opus high
+interrogate reviewers: fable high, opus high, opus high
 ```
+
+These defaults use only `opus` and `fable`. The source gives the third seat of each panel to a model from another vendor. This host has none, so that seat is a second `opus high`, and `arena cross-judge pool` then holds no judge from another family. The two-provider defaults give that third seat to `codex:gpt-6.1-sol high`, in `arena cross-judge pool` on any host, and in T3 also in `arena runners`, `architect runners` and `interrogate reviewers`. Every other role keeps the value above.
 
 ### 6. Confirm
 

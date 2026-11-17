@@ -21,7 +21,7 @@ structure SourceModel where
   deriving DecidableEq, Repr
 
 inductive NativeFamily where
-  | opus | haiku | astra | sol | fable
+  | opus | astra | sol | fable
   deriving DecidableEq, Repr
 
 structure NativeModel where
@@ -32,10 +32,10 @@ structure NativeModel where
 def translate (host : Host) (source : SourceModel) : NativeModel :=
   { family := match host, source.family with
       | .claude, .opus => .opus
-      | .claude, .grok => .haiku
+      | .claude, .grok => .opus
       | .claude, .fable => .fable
-      | .claude, .gemini => .haiku
-      | .codex, .opus => .astra
+      | .claude, .gemini => .opus
+      | .codex, .opus => .sol
       | .codex, .grok => .sol
       | .codex, .fable => .astra
       | .codex, .gemini => .sol
@@ -60,12 +60,12 @@ theorem claude_opus_preserved (effort : Effort) (fast : Bool) :
     (translate .claude ⟨.opus, effort, fast⟩).family = .opus := by
   rfl
 
-theorem claude_grok_is_haiku (effort : Effort) (fast : Bool) :
-    (translate .claude ⟨.grok, effort, fast⟩).family = .haiku := by
+theorem claude_grok_is_opus (effort : Effort) (fast : Bool) :
+    (translate .claude ⟨.grok, effort, fast⟩).family = .opus := by
   rfl
 
-theorem codex_opus_is_astra (effort : Effort) (fast : Bool) :
-    (translate .codex ⟨.opus, effort, fast⟩).family = .astra := by
+theorem codex_opus_is_sol (effort : Effort) (fast : Bool) :
+    (translate .codex ⟨.opus, effort, fast⟩).family = .sol := by
   rfl
 
 theorem codex_grok_is_sol (effort : Effort) (fast : Bool) :
@@ -76,8 +76,8 @@ theorem claude_fable_preserved (effort : Effort) (fast : Bool) :
     (translate .claude ⟨.fable, effort, fast⟩).family = .fable := by
   rfl
 
-theorem claude_gemini_is_haiku (effort : Effort) (fast : Bool) :
-    (translate .claude ⟨.gemini, effort, fast⟩).family = .haiku := by
+theorem claude_gemini_is_opus (effort : Effort) (fast : Bool) :
+    (translate .claude ⟨.gemini, effort, fast⟩).family = .opus := by
   rfl
 
 theorem codex_fable_is_astra (effort : Effort) (fast : Bool) :
@@ -110,7 +110,7 @@ def effortText : Effort → String
 
 def render (model : NativeModel) : String :=
   (match model.family with
-    | .fable => "fable" | .opus => "opus" | .haiku => "haiku" | .astra => "gpt-6-astra" | .sol => "gpt-6.1-sol") ++
+    | .fable => "fable" | .opus => "opus" | .astra => "gpt-6-astra" | .sol => "gpt-6.1-sol") ++
     " " ++ effortText model.effort
 
 def invocation (host : Host) (skill : String) : String :=

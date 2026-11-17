@@ -51,7 +51,7 @@ test('finite lexical examples stay ordinary tests rather than formal-proof count
       source: `${family}-${effort}${fast}`, family, effort,
     }))));
   for (const host of ['Codex', 'Claude Code']) {
-    const expected = t => `${{ 'Claude Code': { 'claude-opus-5-5': 'opus', 'grok-4.7': 'haiku', 'claude-fable-5-2': 'fable', 'gemini-4-carbon': 'haiku' }, Codex: { 'claude-opus-5-5': 'gpt-6-astra', 'grok-4.7': 'gpt-6.1-sol', 'claude-fable-5-2': 'gpt-6-astra', 'gemini-4-carbon': 'gpt-6.1-sol' } }[host][t.family]} ${t.effort}`;
+    const expected = t => `${{ 'Claude Code': { 'claude-opus-5-5': 'opus', 'grok-4.7': 'opus', 'claude-fable-5-2': 'fable', 'gemini-4-carbon': 'opus' }, Codex: { 'claude-opus-5-5': 'gpt-6.1-sol', 'grok-4.7': 'gpt-6.1-sol', 'claude-fable-5-2': 'gpt-6-astra', 'gemini-4-carbon': 'gpt-6.1-sol' } }[host][t.family]} ${t.effort}`;
     for (const a of tokens) for (const b of tokens)
       assert.equal(compileMarkdown('example.md', `${a.source}, ${b.source}`, host, []), `${expected(a)}, ${expected(b)}`);
   }

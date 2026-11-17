@@ -13,7 +13,7 @@ Write `$CODEX_HOME/AGENTS.md`, an always-applied rule that sets pstack's model p
 
 ### 1. Detect available models
 
-Enumerate models and efforts accepted by the live dispatch tool. Use only confirmed available choices. Inherited aliases are allowed, but explicit efforts must also be supported. Read docs/runtime.md for the native configuration location and dispatch fields. Then detect seats on other providers: run `--version` for each of `codex`, `claude` and `grok` other than this host, and offer each one that answers as `<provider>:<model> <effort>` choices for the arena cross-judge pool, whose judge answers without writing files, so its verdict keeps a family other than the parent's. Roles that write candidates, repros or tests, such as arena and architect runners and interrogate reviewers, keep native or T3 seats. In T3, the providers `orchestrator_capabilities` lists are the preferred route.
+Enumerate models and efforts accepted by the live dispatch tool. Use only confirmed available choices. Inherited aliases are allowed, but explicit efforts must also be supported. Read docs/runtime.md for the native configuration location and dispatch fields. Then detect seats on other providers: run `--version` for each of `codex`, `claude` and `grok` other than this host, and offer each one that answers as `<provider>:<model> <effort>` choices for the arena cross-judge pool, whose judge answers without writing files, so its verdict keeps a family other than the parent's. Roles that write candidates, repros or tests, such as arena and architect runners and interrogate reviewers, keep native or T3 seats. In T3, the providers `orchestrator_capabilities` lists are the preferred route. When `claude` is among them or answers, ask whether to use the two-provider defaults in step 5.
 
 ### 2. Load current state
 
@@ -51,20 +51,22 @@ In $CODEX_HOME/AGENTS.md (default ~/.codex/AGENTS.md), replace only the block be
 ```
 # defaults: 2
 # budget: large (xhigh)
-feature, refactoring: gpt-6-astra xhigh
-bug-fix: gpt-6-astra xhigh
-perf-issue: gpt-6-astra xhigh
-hillclimb: gpt-6-astra xhigh
-judgment and prose: gpt-6-astra xhigh
+feature, refactoring: gpt-6.1-sol xhigh
+bug-fix: gpt-6.1-sol xhigh
+perf-issue: gpt-6.1-sol xhigh
+hillclimb: gpt-6.1-sol xhigh
+judgment and prose: gpt-6.1-sol xhigh
 hardest tasks: gpt-6-astra max
-reflect tooling: gpt-6-astra high
-reflect judgment, divergent, synthesizer: gpt-6-astra xhigh
-arena runners: gpt-6-astra high, gpt-6-astra high, gpt-6.1-sol high
-arena cross-judge pool: gpt-6-astra high, gpt-6-astra high, gpt-6.1-sol high
-swarm workers: gpt-6-astra high
-architect runners: gpt-6-astra high, gpt-6-astra high, gpt-6.1-sol high
-interrogate reviewers: gpt-6-astra high, gpt-6-astra high, gpt-6.1-sol high
+reflect tooling: gpt-6.1-sol high
+reflect judgment, divergent, synthesizer: gpt-6.1-sol xhigh
+arena runners: gpt-6-astra high, gpt-6.1-sol high, gpt-6.1-sol high
+arena cross-judge pool: gpt-6-astra high, gpt-6.1-sol high, gpt-6.1-sol high
+swarm workers: gpt-6.1-sol high
+architect runners: gpt-6-astra high, gpt-6.1-sol high, gpt-6.1-sol high
+interrogate reviewers: gpt-6-astra high, gpt-6.1-sol high, gpt-6.1-sol high
 ```
+
+These defaults use only `gpt-6.1-sol` and `gpt-6-astra`. The source gives the third seat of each panel to a model from another vendor. This host has none, so that seat is a second `gpt-6.1-sol high`, and `arena cross-judge pool` then holds no judge from another family. The two-provider defaults give that third seat to `claude:opus high`, in `arena cross-judge pool` on any host, and in T3 also in `arena runners`, `architect runners` and `interrogate reviewers`. Every other role keeps the value above.
 
 ### 6. Confirm
 

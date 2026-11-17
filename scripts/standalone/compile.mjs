@@ -36,7 +36,7 @@ export function compileMarkdown(path, input, host, skillNames, emit) {
   if (path === 'skills/setup-pstack/SKILL.md') {
     section('### 1. Detect available models', '### 2.', `### 1. Detect available models
 
-Enumerate models and efforts accepted by the live dispatch tool. Use only confirmed available choices. Inherited aliases are allowed, but explicit efforts must also be supported. Read docs/runtime.md for the native configuration location and dispatch fields. Then detect seats on other providers: run \`--version\` for each of \`codex\`, \`claude\` and \`grok\` other than this host, and offer each one that answers as \`<provider>:<model> <effort>\` choices for the arena cross-judge pool, whose judge answers without writing files, so its verdict keeps a family other than the parent's. Roles that write candidates, repros or tests, such as arena and architect runners and interrogate reviewers, keep native or T3 seats. In T3, the providers \`orchestrator_capabilities\` lists are the preferred route.`);
+Enumerate models and efforts accepted by the live dispatch tool. Use only confirmed available choices. Inherited aliases are allowed, but explicit efforts must also be supported. Read docs/runtime.md for the native configuration location and dispatch fields. Then detect seats on other providers: run \`--version\` for each of \`codex\`, \`claude\` and \`grok\` other than this host, and offer each one that answers as \`<provider>:<model> <effort>\` choices for the arena cross-judge pool, whose judge answers without writing files, so its verdict keeps a family other than the parent's. Roles that write candidates, repros or tests, such as arena and architect runners and interrogate reviewers, keep native or T3 seats. In T3, the providers \`orchestrator_capabilities\` lists are the preferred route. When ${codex ? '\`claude\`' : '\`codex\`'} is among them or answers, ask whether to use the two-provider defaults in step 5.`);
     section('### 2. Load current state', '### 3.', `### 2. Load current state
 
 Load the native model configuration. ${codex ? 'Read only the pstack models block in AGENTS.md; unrelated instructions are not role entries.' : 'Read the dedicated pstack-models.md rule file.'} Missing roles use the defaults below. Drop retired role labels only from this configuration and show them before confirmation.
@@ -61,7 +61,9 @@ ${codex ? 'In $CODEX_HOME/AGENTS.md (default ~/.codex/AGENTS.md), replace only t
 
 \`\`\`
 ${rows}
-\`\`\``);
+\`\`\`
+
+These defaults use only ${codex ? '\`gpt-6.1-sol\` and \`gpt-6-astra\`' : '\`opus\` and \`fable\`'}. The source gives the third seat of each panel to a model from another vendor. This host has none, so that seat is a second \`${codex ? 'gpt-6.1-sol' : 'opus'} high\`, and \`arena cross-judge pool\` then holds no judge from another family. The two-provider defaults give that third seat to \`${codex ? 'claude:opus' : 'codex:gpt-6.1-sol'} high\`, in \`arena cross-judge pool\` on any host, and in T3 also in \`arena runners\`, \`architect runners\` and \`interrogate reviewers\`. Every other role keeps the value above.`);
   }
   if (path === 'skills/poteto-help/SKILL.md') section('Whether `/poteto-mode` stays on', '## Pick a skill', `Whether poteto-mode stays on depends on how the user starts it. Invoking it with a task loads the skill for that task, and it can fade as the chat moves on. ${modeSetup} A new task asks the coordinator to select a fresh playbook. Children receive the complete brief and installed agent instructions.`);
   if (path === 'skills/arena/SKILL.md') {
@@ -157,10 +159,10 @@ Read the endpoint from the created service. Use the host secret-request mechanis
   text = edit.replace(text, /readonly strips MCPs?/g, 'tool restrictions can remove required integrations');
   text = edit.replace(text, /`run_in_background: true`/g, 'the host-supported background dispatch route');
   text = edit.replace(text, /`environment: "cloud"`/g, 'the host-supported isolation route');
-  text = edit.replace(text, /\bclaude-opus-5-5-(max|xhigh|high|medium|low)(?:-fast)?\b/g, (_, effort) => `${codex ? 'gpt-6-astra' : 'opus'} ${effort}`);
-  text = edit.replace(text, /\bgrok-4\.7-(max|xhigh|high|medium|low)(?:-fast)?\b/g, (_, effort) => `${codex ? 'gpt-6.1-sol' : 'haiku'} ${effort}`);
+  text = edit.replace(text, /\bclaude-opus-5-5-(max|xhigh|high|medium|low)(?:-fast)?\b/g, (_, effort) => `${codex ? 'gpt-6.1-sol' : 'opus'} ${effort}`);
+  text = edit.replace(text, /\bgrok-4\.7-(max|xhigh|high|medium|low)(?:-fast)?\b/g, (_, effort) => `${codex ? 'gpt-6.1-sol' : 'opus'} ${effort}`);
   text = edit.replace(text, /\bclaude-fable-5-2-(max|xhigh|high|medium|low)(?:-fast)?\b/g, (_, effort) => `${codex ? 'gpt-6-astra' : 'fable'} ${effort}`);
-  text = edit.replace(text, /\bgemini-4-carbon-(max|xhigh|high|medium|low)(?:-fast)?\b/g, (_, effort) => `${codex ? 'gpt-6.1-sol' : 'haiku'} ${effort}`);
+  text = edit.replace(text, /\bgemini-4-carbon-(max|xhigh|high|medium|low)(?:-fast)?\b/g, (_, effort) => `${codex ? 'gpt-6.1-sol' : 'opus'} ${effort}`);
   text = edit.replace(text, /Cursor's built-in `create-skill`(?: skill)?|the \*\*create-skill\*\* skill \(Cursor's built-in for authoring SKILL.md files\)/g, 'the skill-authoring procedure in docs/runtime.md');
   text = edit.replace(text, /^Not in pstack:\n\n- `\/deslop`, `control-cli`, and `control-ui` ship in the `cursor-team-kit` plugin\.\n/m, 'This package also bundles `/deslop`, `control-cli`, and `control-ui`.\n\nNot in pstack:\n\n');
   text = edit.replace(text, /`\/deslop` ships in the `cursor-team-kit` plugin, not in pstack\. If you don't have it, ask for the same outcome in plain words: [^\n]*? edits\./, '`/deslop` ships bundled with this package.');
