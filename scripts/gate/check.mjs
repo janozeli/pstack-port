@@ -67,7 +67,10 @@ const applies = m => (m.edits ?? []).every(([file, find, replace]) => {
   const text = sh('git', ['show', `HEAD:${file}`]).stdout;
   return text.replace(find, replace) !== text;
 });
-const rewritten = baseMutations.filter(m => prMutations.some(x => x.id === m.id) && !applies(m)).map(m => m.id);
+const stale = baseMutations.filter(m => prMutations.some(x => x.id === m.id) && !applies(m)).map(m => m.id);
+// Rewritten means the pull request changed the entry. A fault planted by a defect only stops applying.
+const same = (a, b) => JSON.stringify([a.edits, a.write, a.append], (key, value) => (value instanceof RegExp ? String(value) : value)) === JSON.stringify([b.edits, b.write, b.append], (key, value) => (value instanceof RegExp ? String(value) : value));
+const rewritten = stale.filter(id => !same(baseMutations.find(m => m.id === id), prMutations.find(m => m.id === id)));
 
 // Packages that change while the source does not mean the port's own behavior changed. With rewritten
 // expectations on top, the pull request has redefined what is correct instead of fixing the code.
@@ -103,8 +106,8 @@ if (problems.length === 0 && testsPass && prMutations.length > 0) {
   console.log('\n== Mutation run');
   const list = prMutations.map(m => {
     const base = baseMutations.find(x => x.id === m.id);
-    if (!base || rewritten.includes(m.id)) {
-      if (base) console.log(`::warning title=Mutation ${m.id} was rewritten::Its target changed in this pull request, so the pull request's edits run. Check that it still plants the same fault: ${base.desc}`);
+    if (!base || stale.includes(m.id)) {
+      if (base && rewritten.includes(m.id)) console.log(`::warning title=Mutation ${m.id} was rewritten::Its target changed in this pull request, so the pull request's edits run. Check that it still plants the same fault: ${base.desc}`);
       return m;
     }
     return { ...base, survives: m.survives, equivalent: m.equivalent };
