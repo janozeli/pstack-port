@@ -20,6 +20,9 @@ function difference(expected, actual) {
     changedMode: [...want.keys()].filter(path => have.has(path) && have.get(path).executable !== want.get(path).executable),
   };
 }
+// The role table does not cover prose or scripts copied without compilation. Scan every shipped file too.
+// Source seats join model and effort with a hyphen; native seats separate them with a space.
+const sourceModel = new RegExp(String.raw`\b(?=[a-z0-9.-]*\d)[a-z][a-z0-9.]*(?:-[a-z0-9.]+)*-(?:${EFFORTS.join('|')})(?:-fast)?\b`, 'g');
 // Spellings only one package may contain. A seat on the other provider is written `provider:model effort`, so it is not a native seat.
 const HOST_ONLY = {
   codex: [/\$pstack:/, /\bspawn_agent\b/, /\$CODEX_HOME\b/, /\.agents\/skills\//, /\.codex-plugin\b/, /\bAGENTS\.md\b/, /\brequest_user_input\b/, /\bcodex -p poteto\b/,
@@ -42,6 +45,12 @@ for (const bundle of bundles) {
     assert.equal(new Set(bundle.expected.map(e => e.path)).size, bundle.expected.length, 'each path is derived once');
     assert.deepEqual(difference(bundle.expected, bundle.actual), same, 'committed package against source');
     assert.deepEqual(difference(bundle.expected, bundle.produced), same, 'renderer output against source');
+  });
+
+  test(`${tree} ships no source model spelling, including outside the role table`, () => {
+    const found = bundle.actual.flatMap(({ path }) =>
+      (readFileSync(join(root, 'harness/pstack', tree, path), 'latin1').match(sourceModel) ?? []).map(token => `${path}: ${token}`));
+    assert.deepEqual(found, []);
   });
 
   test(`${tree} ships no spelling that belongs to the other host`, () => {
