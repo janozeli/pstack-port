@@ -26,7 +26,7 @@ export function syntaxRules(tree, skills) {
 
 // Source paths the packages leave out on purpose; plugin.json ships as the host manifests instead.
 // Every other tracked file under pstack/ must ship, so a new upstream path fails until it ships or is listed here.
-export const NOT_SHIPPED = [/^\.cursor-plugin\//, /^\.gitignore$/, /^assets\//, /^automations\//, /^docs\/harness\//, /^plugin\.json$/];
+export const NOT_SHIPPED = [/^\.cursor-plugin\//, /^\.gitignore$/, /^assets\//, /^automations\//, /^docs\/harness\//, /^plugin\.json$/, /^LICENSE$/];
 
 // The file list comes from git, not from a directory walk, so it shares no traversal or skip rule with the generator.
 function tracked(root, dir) {

@@ -68,7 +68,7 @@ export const mutations = [
     edits: [[C, "codex ? '.agents/skills/' : '.claude/skills/'", "codex ? '.claude/skills/' : '.claude/skills/'"]] },
 
   { id: 'I1', area: 'inventory', desc: "generator omits the root LICENSE",
-    edits: [[G, '  files.set("LICENSE", file(join(PSTACK, "LICENSE")));\n', '']] },
+    edits: [[G, '  files.set("docs/runtime.md", { bytes: Buffer.from(runtime(harness)), executable: false });\n', '']] },
   { id: 'I2', area: 'inventory', desc: "generator keeps the other host's history reader",
     edits: [[G, /  files\.delete\(`skills\/poteto-mode\/scripts\/.*\n/, '']] },
   { id: 'I3', area: 'inventory', desc: "executable bit kept for .sh files only",
