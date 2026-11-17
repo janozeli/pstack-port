@@ -1,0 +1,41 @@
+name: Gate
+
+# GitHub takes a pull_request_target workflow and its default checkout from the default branch.
+# A pull request therefore cannot change the gate that judges it, whatever branch it targets.
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gate-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  gate:
+    # The job runs pull request code, so it runs only for branches of this repository, with a read-only token and no cache.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out the gate from the default branch
+        uses: actions/checkout@v4
+        with:
+          path: base
+          persist-credentials: false
+      - name: Check out the pull request merged into its base branch
+        uses: actions/checkout@v4
+        with:
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
+          path: pr
+          fetch-depth: 2
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.23.4
+      - name: Install audit test tools
+        run: sudo apt-get update && sudo apt-get install -y jq ripgrep
+      - name: Judge the pull request with the default branch's gate
+        run: node base/scripts/gate/check.mjs pr

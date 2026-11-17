@@ -51,7 +51,20 @@ Use `--cli /absolute/path/to/binary` if a version-manager shim depends on the or
 
 `npm run test:mutation` checks the tests themselves. `scripts/mutation/mutations.mjs` lists realistic faults in the compiler, the rewrite engine, the generator and the source. For each one the runner clones `HEAD`, applies the fault, regenerates the packages as a real commit would, and runs `npm test`. A fault that `npm test` does not catch fails the run unless its entry records why it is accepted (`survives`) or why it changes nothing (`equivalent`). The runner tests committed code only, so commit before you run it. Pass mutation IDs to run a subset.
 
-The `Mutation score` workflow runs it on pull requests that change the compiler, the generator, the tests, the mutation list or the source, and on manual dispatch.
+## The merge gate
+
+The `Gate` workflow is the check that decides whether a pull request may merge. It uses `pull_request_target`, so GitHub takes the workflow file and `scripts/gate/check.mjs` from `main` and the pull request cannot edit them. It checks out the pull request merged into the base branch and runs, in this order:
+
+1. It fails if the pull request changes the gate itself: anything under `.github/` or `scripts/gate/`, or `scripts/mutation/run.mjs`.
+2. It stops with a pass if no port input changed.
+3. It compares the mutation list with the base branch. No mutation may disappear, and none may newly become `survives` or `equivalent`.
+4. It fails if the generated packages change while no source file changed and existing test lines were deleted or mutations were rewritten. That pattern means the pull request redefined what is correct.
+5. It runs `node --test scripts/test/*.test.mjs` directly, the generator check, the document check and the manifest check.
+6. It runs the mutations. One that still applies runs as the base branch wrote it. One whose target code changed runs with the pull request's edits, and the log warns about it.
+
+Each failure is one `::error::` line with the cause and the action. `gh run view <run> --log-failed | grep '::error'` prints them. To run the same gate before you push, commit and run `node scripts/gate/check.mjs . --base origin/main`.
+
+A pull request that the gate cannot pass by design, such as a change to the gate or the removal of a mutation, needs the repository owner.
 
 ## After an upstream sync
 
@@ -64,7 +77,7 @@ Merge upstream, then run `node scripts/generate-pstack-harness-trees.mjs` and `n
 | `no rule for <seat>` in the role table test, or a source model spelling in a shipped file | Upstream changed its default models. | Decide the native model for each host, then update `NATIVE_MODELS` in `scripts/test/port-evidence.mjs`, the model rules in the compiler, and the mapping text in `README.md`. |
 | `missing` or `extra` paths in the inventory test | Upstream added, moved or removed a source path. | Ship it through the generator, or list it in `NOT_SHIPPED` with the reason. |
 | A spelling that belongs to the other host | A replacement uses one host's command, path or model in both packages. | Make the replacement depend on the host. |
-| `the mutation no longer applies` from the mutation run | The code that a fault edits changed shape. | Update the entry so that it describes the same fault. |
+| `Mutation X no longer applies` | The code that a fault edits changed shape. | Rewrite the `edits` of that entry so that it plants the same fault in the new code. The gate warns about each rewritten mutation. |
 
 Then set the port version in `TARGETS` in the generator to the new upstream version, regenerate, and commit the generated packages with the change. Read the diff under `harness/pstack/`: the tests do not judge the meaning of rewritten prose, so that diff is the review of it.
 
