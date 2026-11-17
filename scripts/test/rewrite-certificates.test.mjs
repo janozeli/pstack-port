@@ -46,12 +46,12 @@ test('actual compiler emits a connected trace including native model and command
 });
 
 test('finite lexical examples stay ordinary tests rather than formal-proof counts', () => {
-  const tokens = ['claude-opus-5-5', 'grok-4.7'].flatMap(family =>
+  const tokens = ['claude-opus-5-5', 'grok-4.7', 'claude-fable-5-2', 'gemini-4-carbon'].flatMap(family =>
     ['low', 'medium', 'high', 'xhigh', 'max'].flatMap(effort => ['', '-fast'].map(fast => ({
       source: `${family}-${effort}${fast}`, family, effort,
     }))));
   for (const host of ['Codex', 'Claude Code']) {
-    const expected = t => `${{ 'Claude Code': { claude: 'opus', grok: 'haiku' }, Codex: { claude: 'gpt-6-astra', grok: 'gpt-6.1-sol' } }[host][t.family.startsWith('claude') ? 'claude' : 'grok']} ${t.effort}`;
+    const expected = t => `${{ 'Claude Code': { 'claude-opus-5-5': 'opus', 'grok-4.7': 'opus', 'claude-fable-5-2': 'fable', 'gemini-4-carbon': 'opus' }, Codex: { 'claude-opus-5-5': 'gpt-6.1-sol', 'grok-4.7': 'gpt-6.1-sol', 'claude-fable-5-2': 'gpt-6-astra', 'gemini-4-carbon': 'gpt-6.1-sol' } }[host][t.family]} ${t.effort}`;
     for (const a of tokens) for (const b of tokens)
       assert.equal(compileMarkdown('example.md', `${a.source}, ${b.source}`, host, []), `${expected(a)}, ${expected(b)}`);
   }

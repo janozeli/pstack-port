@@ -73,7 +73,7 @@ for (const host of ['codex','claude-code']) {
         const split = line.indexOf(': ');
         return [line.slice(0,split),line.slice(split+2).split(', ').length];
       });
-      assert.equal(entries.length, 17, 'the setup contract has 17 roles');
+      assert.equal(entries.length, 13, 'the setup contract has 13 roles');
       return entries;
     };
     assert.deepEqual(roles(join(root,'harness/pstack',host,'skills/setup-pstack/SKILL.md')), roles(join(root,'pstack/skills/setup-pstack/SKILL.md')));
@@ -205,7 +205,7 @@ test('read-only delegates, program state and charts use real host features', () 
   assert.match(readFileSync(join(claude, 'agents/poteto-readonly.md'), 'utf8'), /^disallowedTools: Edit, Write, NotebookEdit$/m);
   assert.equal(existsSync(join(codex, 'agents/poteto-readonly.md')), false);
   assert.match(readFileSync(join(claude, 'skills/how/SKILL.md'), 'utf8'), /subagent_type: "pstack:poteto-readonly"/);
-  assert.match(readFileSync(join(codex, 'skills/how/SKILL.md'), 'utf8'), /read-only is instructed, not enforced/);
+  assert.match(readFileSync(join(codex, 'skills/how/SKILL.md'), 'utf8'), /read-only is instructed, not enforced/i);
   for (const dir of [claude, codex]) {
     assert.doesNotMatch(readFileSync(join(dir, 'skills/poteto-mode/playbooks/orchestrate.md'), 'utf8'), /Project store/);
     const ketchup = readFileSync(join(dir, 'skills/ketchup/SKILL.md'), 'utf8');

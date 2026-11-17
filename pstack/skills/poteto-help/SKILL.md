@@ -47,7 +47,7 @@ pstack is built for Cursor, and it also installs in Claude Code with `/plugin ma
 
 For this fork's Codex package, follow the [marketplace installation instructions](../../README.md#install), then install `pstack@pstack-port`. Each skill runs as `$pstack:<name>`, such as `$pstack:poteto-mode`. The [Codex adapter](../../docs/harness/codex.md) maps the Cursor names and defines which workflow steps need host capabilities.
 
-Other tools can read the skills, because they use the Agent Skills format. But most workflow skills, including `/poteto-mode`, `/how`, `/why`, and `/teach`, spawn Cursor subagents with per-role models, and Custom Modes and `/loop` are Cursor features, so those parts may not work there.
+Other tools can read the skills, because they use the Agent Skills format. But most workflow skills, including `/poteto-mode`, `/how`, and `/teach`, spawn Cursor subagents, some with per-role models, and Custom Modes and `/loop` are Cursor features, so those parts may not work there.
 
 ## Start a task with `/poteto-mode`
 

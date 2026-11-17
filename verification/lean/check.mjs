@@ -13,7 +13,7 @@ const root = resolve(here, '../..');
 const lean = process.env.LEAN ?? 'lean';
 const proof = ['Port.lean', 'Translation.lean'].map(file => readFileSync(join(here, file), 'utf8').replace(/^import Std\n/, '')).join('\n');
 const required = [
-  ...['effort_preserved', 'claude_opus_preserved', 'claude_grok_is_haiku', 'codex_opus_is_astra', 'codex_grok_is_sol', 'fast_does_not_change_model',
+  ...['effort_preserved', 'claude_opus_preserved', 'claude_grok_is_opus', 'codex_opus_is_sol', 'codex_grok_is_sol', 'claude_fable_preserved', 'claude_gemini_is_opus', 'codex_fable_is_astra', 'codex_gemini_is_sol', 'fast_does_not_change_model',
     'role_names_and_order_preserved', 'panel_sizes_preserved', 'panel_efforts_and_order_preserved', 'model_rule_present', 'Aligned.length_eq', 'checkList_sound', 'checkList_complete', 'checkRoles_sound', 'checkRoles_count'].map(n => `Port.${n}`),
   ...['frame_sound', 'frame_accounting', 'accepted_step_decomposition', 'frame_refines', 'frame_reverse',
     'allowed_contract', 'accepted_step_contract', 'checkStep_sound', 'checkTrace_sound', 'pipeline_refines', 'frame_identity', 'pipeline_identity',
@@ -111,10 +111,25 @@ try {
     ['MissingRoles', { ...fixture, nativeRoles: [] }],
     ['UnknownHost', { ...fixture, tree: 'unknown' }],
   ]) assert.throws(() => run([changed], label), /rejected|Empty artifact coverage|Unknown host/);
-  const badModel = { input: 'grok-4.7-high', output: 'gpt-6.1-sol low', steps: [{
-    chunks: [{ keep: '', before: 'grok-4.7-high', after: 'gpt-6.1-sol low' }], tail: '', output: 'gpt-6.1-sol low',
-  }] };
-  assert.throws(() => run([{ ...fixture, traces: [{ path: 'model.md', ...badModel }] }], 'WrongModel'), /rewrite trace rejected/);
+  for (const [tree, source, output] of [
+    ['codex', 'grok-4.7-high', 'gpt-6.1-sol low'],
+    ['codex', 'claude-fable-5-2-high', 'gpt-6.1-sol low'],
+    ['codex', 'gemini-4-carbon-high', 'gpt-6.1-sol low'],
+    ['codex', 'claude-fable-5-2-high', 'gpt-6.1-sol high'],
+    ['codex', 'gemini-4-carbon-high', 'gpt-6-astra high'],
+    ['claude-code', 'claude-fable-5-2-high', 'opus high'],
+    ['claude-code', 'gemini-4-carbon-high', 'fable high'],
+    ['codex', 'claude-opus-5-5-high', 'gpt-6-astra high'],
+    ['claude-code', 'gemini-4-carbon-high', 'haiku high'],
+  ]) {
+    const badModel = { input: source, output, steps: [{
+      chunks: [{ keep: '', before: source, after: output }], tail: '', output,
+    }] };
+    assert.throws(() => run([{ ...fixture, tree,
+      nativeRoles: [{ name: 'worker', seats: [tree === 'codex' ? 'gpt-6.1-sol high' : 'opus high'] }],
+      traces: [{ path: 'model.md', ...badModel }] }],
+      `WrongModel-${tree}-${source}`), /rewrite trace rejected/);
+  }
   const badCommand = { input: '/reflect', output: '/pstack:reflect', steps: [{
     chunks: [{ keep: '', before: '/reflect', after: '/pstack:reflect' }], tail: '', output: '/pstack:reflect',
   }] };

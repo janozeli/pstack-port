@@ -7,7 +7,7 @@ inductive Host where
   deriving DecidableEq, Repr
 
 inductive Family where
-  | opus | grok
+  | opus | grok | fable | gemini
   deriving DecidableEq, Repr
 
 inductive Effort where
@@ -20,10 +20,8 @@ structure SourceModel where
   fast : Bool
   deriving DecidableEq, Repr
 
--- Each host keeps the author's two roles on its own models: her Opus seats take
--- the host's strongest model, her Grok seats its fast model.
 inductive NativeFamily where
-  | opus | haiku | astra | sol
+  | opus | astra | sol | fable
   deriving DecidableEq, Repr
 
 structure NativeModel where
@@ -34,9 +32,13 @@ structure NativeModel where
 def translate (host : Host) (source : SourceModel) : NativeModel :=
   { family := match host, source.family with
       | .claude, .opus => .opus
-      | .claude, .grok => .haiku
-      | .codex, .opus => .astra
+      | .claude, .grok => .opus
+      | .claude, .fable => .fable
+      | .claude, .gemini => .opus
+      | .codex, .opus => .sol
       | .codex, .grok => .sol
+      | .codex, .fable => .astra
+      | .codex, .gemini => .sol
     effort := source.effort }
 
 structure Role (α : Type) where
@@ -58,16 +60,32 @@ theorem claude_opus_preserved (effort : Effort) (fast : Bool) :
     (translate .claude ⟨.opus, effort, fast⟩).family = .opus := by
   rfl
 
-theorem claude_grok_is_haiku (effort : Effort) (fast : Bool) :
-    (translate .claude ⟨.grok, effort, fast⟩).family = .haiku := by
+theorem claude_grok_is_opus (effort : Effort) (fast : Bool) :
+    (translate .claude ⟨.grok, effort, fast⟩).family = .opus := by
   rfl
 
-theorem codex_opus_is_astra (effort : Effort) (fast : Bool) :
-    (translate .codex ⟨.opus, effort, fast⟩).family = .astra := by
+theorem codex_opus_is_sol (effort : Effort) (fast : Bool) :
+    (translate .codex ⟨.opus, effort, fast⟩).family = .sol := by
   rfl
 
 theorem codex_grok_is_sol (effort : Effort) (fast : Bool) :
     (translate .codex ⟨.grok, effort, fast⟩).family = .sol := by
+  rfl
+
+theorem claude_fable_preserved (effort : Effort) (fast : Bool) :
+    (translate .claude ⟨.fable, effort, fast⟩).family = .fable := by
+  rfl
+
+theorem claude_gemini_is_opus (effort : Effort) (fast : Bool) :
+    (translate .claude ⟨.gemini, effort, fast⟩).family = .opus := by
+  rfl
+
+theorem codex_fable_is_astra (effort : Effort) (fast : Bool) :
+    (translate .codex ⟨.fable, effort, fast⟩).family = .astra := by
+  rfl
+
+theorem codex_gemini_is_sol (effort : Effort) (fast : Bool) :
+    (translate .codex ⟨.gemini, effort, fast⟩).family = .sol := by
   rfl
 
 theorem fast_does_not_change_model (host : Host) (family : Family) (effort : Effort) :
@@ -92,21 +110,25 @@ def effortText : Effort → String
 
 def render (model : NativeModel) : String :=
   (match model.family with
-    | .opus => "opus" | .haiku => "haiku" | .astra => "gpt-6-astra" | .sol => "gpt-6.1-sol") ++
+    | .fable => "fable" | .opus => "opus" | .astra => "gpt-6-astra" | .sol => "gpt-6.1-sol") ++
     " " ++ effortText model.effort
 
 def invocation (host : Host) (skill : String) : String :=
   (match host with | .codex => "$pstack:" | .claude => "/pstack:") ++ skill
 
 def sourceRender (model : SourceModel) : String :=
-  (match model.family with | .opus => "claude-opus-5-5" | .grok => "grok-4.7") ++
+  (match model.family with
+    | .opus => "claude-opus-5-5"
+    | .grok => "grok-4.7"
+    | .fable => "claude-fable-5-2"
+    | .gemini => "gemini-4-carbon") ++
     "-" ++ effortText model.effort ++ (if model.fast then "-fast" else "")
 
 -- This is the finite lexical grammar, not a finite set of test documents.
 -- The verified trace checker applies it to every actual replacement in every
 -- document, while its soundness theorem quantifies over arbitrary traces.
 def syntaxRules (host : Host) (skills : List String) : List (String × String) :=
-  let models := [Family.opus, Family.grok].flatMap fun family =>
+  let models := [Family.opus, Family.grok, Family.fable, Family.gemini].flatMap fun family =>
     [Effort.low, .medium, .high, .xhigh, .max].flatMap fun effort =>
       [false, true].map fun fast =>
         let model : SourceModel := ⟨family, effort, fast⟩

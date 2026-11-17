@@ -34,7 +34,7 @@ Do not assume a background agent has every foreground tool. Check that the selec
 | Cursor | Claude Code |
 | --- | --- |
 | `claude-<family>-<version>-<effort>[-fast]`, such as `claude-opus-5-5-xhigh` | Use the matching family alias accepted by the current `Agent` schema, such as `model: "opus"`, and pass the effort separately as `effort`. An alias chooses the host's version, not a guarantee of the source version. Drop `-fast` and report the mapping. |
-| A `grok-*`, `gpt-*`, or other non-Claude slug | Native Claude cannot dispatch that provider. Inherit the parent model, preserve the supported effort, and report reduced model diversity. A host-provided cross-provider route may be used when the user's configuration and host instructions authorize it. |
+| A `grok-*`, `gpt-*`, or other non-Claude slug | For source defaults, use the native mapping below. For an explicit foreign-provider choice, use an authorized host cross-provider route or report it unavailable. Do not silently replace a configured model. |
 | `auto` or `inherit-parent` | Inherit the parent model and effort. Omit the fields only if the selected agent actually inherits them; do not silently use a built-in agent's different default model. |
 | `auto <effort>` or `inherit-parent <effort>` | Inherit the parent model and pass the supported `effort` explicitly. |
 | The `pstack-models.mdc` rule, `~/.cursor/rules/pstack-models.mdc` | `$CLAUDE_CONFIG_DIR/rules/pstack-models.md`, or `~/.claude/rules/pstack-models.md` when unset. Read it when it is not already in context. Missing roles use the skill defaults. |
@@ -49,9 +49,9 @@ Use only values accepted by the actual dispatch tool and selected model. For an 
 Follow the source steps, including its budget labels, role list, panel sizes, confirmation, and optional verification offers, with these changes:
 
 - Detect models and efforts from the live dispatch schema and entitlement information available in the session. Do not assume a fixed list of aliases or versions.
-- Defaults: map the source Opus slug to `opus xhigh` only when available. Map the non-Claude default to `inherit-parent xhigh`. Apply the supported-effort fallback above; do not invent an unavailable Opus alias.
-- Budget: change explicit effort tokens on real models and aliases, including every panel entry. Thus `small` changes `inherit-parent xhigh` to `inherit-parent medium`. Bare `auto` and `inherit-parent` keep inherited effort on reruns; identify these roles as outside the selected budget and offer an explicit effort before confirming. Save effective supported values.
-- Write only the dedicated `rules/pstack-models.md` file under the Claude configuration directory, without Cursor frontmatter. Keep the comment lines, `# budget` line, and the source's role labels. Replace this configuration file on reruns; preserve every other rule and instruction file.
+- Defaults: map source Opus and Gemini to `opus` and Fable to `fable`, preserving each default effort only when available. Apply the supported-effort fallback above; do not invent an unavailable alias. A configuration without `# defaults: 2` migrates only the old native defaults recognized by the generated setup skill; show replacements before confirmation.
+- Budget: start from each role's source default effort. Keep it for `large`, raise it one step for `unlimited`, lower it one step for `medium`, and lower it two steps for `small`, clamped to the effort ladder. Apply this to real models, explicit aliases, and every panel entry. Bare `auto` and `inherit-parent` keep inherited effort on reruns; identify these roles as outside the selected budget and offer an explicit effort before confirming. Save effective supported values.
+- Write only the dedicated `rules/pstack-models.md` file under the Claude configuration directory, without Cursor frontmatter. Keep the comment lines, `# defaults: 2` line, `# budget` line, and the source's role labels. Replace this configuration file on reruns; preserve every other rule and instruction file.
 
 ## Paths
 
