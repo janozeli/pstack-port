@@ -12,6 +12,9 @@ const NEUTRAL_PROSE = 'Host-neutral section prose. No test reads its meaning, an
 const OWN_HOST_PROSE = "Wrong but spelled with the package's own host names, so no host invariant sees it. The change shows in the package diff.";
 
 export const mutations = [
+  { id: 'K1', area: 'control', desc: 'comment added to the compiler', equivalent: 'A comment changes no output: no test fails and no package file changes.',
+    edits: [[C, "  let text = input;\n", "  let text = input; // start\n"]] },
+
   { id: 'M2', area: 'models', desc: "Claude: gemini maps to fable instead of opus",
     edits: [[C, "/\\bgemini-4-carbon-(max|xhigh|high|medium|low)(?:-fast)?\\b/g, " + sol, "/\\bgemini-4-carbon-(max|xhigh|high|medium|low)(?:-fast)?\\b/g, (_, effort) => `${codex ? 'gpt-6.1-sol' : 'fable'} ${effort}`);"]] },
   { id: 'M3', area: 'models', desc: "Codex: fable maps to sol instead of astra",
