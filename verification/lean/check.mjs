@@ -5,7 +5,8 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { collect } from './evidence.mjs';
+import { collect } from '../../scripts/test/port-evidence.mjs';
+import { sourceFile } from '../../scripts/generate-pstack-harness-trees.mjs';
 import { packageTerm, traceTerm, semanticTerms } from './certificates.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -85,7 +86,13 @@ try {
   assert.throws(() => audit([traceTerm({ input: trace.input, output, steps })], 'BrokenEngine'), /is false/);
   console.log('PASS: proof holes, custom axioms, 11 invalid trace/package witnesses and a real rewrite-engine mutation rejected');
 
-  const evidence = collect(root);
+  // The Lean runner takes ordered numeric identifiers, so equal numbers mean equal paths or equal bytes.
+  const number = (ids, key) => ids.get(key) ?? ids.set(key, ids.size).get(key);
+  const paths = new Map(), contents = new Map();
+  const entries = list => list.map(e => ({ path: number(paths, e.path), content: number(contents, e.sha256), executable: e.executable })).sort((a, b) => a.path - b.path);
+  const evidence = collect(root).map(h => ({ ...h, expected: entries(h.expected), actual: entries(h.actual), produced: entries(h.produced),
+    traces: h.traces.map(t => ({ path: t.path, steps: t.steps, input: readFileSync(sourceFile(t.path), 'utf8'),
+      output: readFileSync(join(root, 'harness/pstack', h.tree, t.path), 'utf8') })) }));
   assert.deepEqual(evidence.map(h => h.tree).sort(), ['claude-code', 'codex'], 'Both host trees must be verified');
   const runner = join(scratch, 'Runner.lean');
   writeFileSync(runner, readFileSync(join(here, 'Runner.lean')));

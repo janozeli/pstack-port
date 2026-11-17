@@ -61,7 +61,7 @@ test('distributed inventory enumeration cannot hide development dependencies or 
   const { mkdtempSync, mkdirSync, writeFileSync, symlinkSync, rmSync } = await import('node:fs');
   const { tmpdir } = await import('node:os');
   const { join } = await import('node:path');
-  const { walk } = await import('../../verification/lean/evidence.mjs');
+  const { walk } = await import('./port-evidence.mjs');
   const dir = mkdtempSync(join(tmpdir(), 'pstack-inventory-'));
   t.after(() => rmSync(dir, { recursive: true, force: true }));
   mkdirSync(join(dir, 'node_modules'));
