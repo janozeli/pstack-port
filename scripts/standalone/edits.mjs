@@ -1,4 +1,4 @@
-// Development-time rewrite engine. Certificates describe ordered, disjoint edits.
+// Development-time rewrite engine. Each emitted step describes ordered, disjoint edits.
 // This module is never copied into either installed plugin.
 export function applyEdits(input, edits, emit, rule) {
   let cursor = 0;
@@ -15,15 +15,16 @@ export function applyEdits(input, edits, emit, rule) {
   return output;
 }
 
-// ECMAScript replacement-string expansion. Matching stays with the native RegExp
-// engine; Lean checks framing, not the semantics of JavaScript regular expressions.
+// ECMAScript replacement-string expansion. Matching stays with the native RegExp engine.
 function expand(template, match, captures, offset, input, groups) {
-  return template.replace(/\$(\$|&|`|'|\d{1,2}|<[^>]*>)/g, (token, key) => {
+  // Without named groups `$<` is literal text, so the scan must not consume up to the next `>`.
+  const tokens = groups === undefined ? /\$(\$|&|`|'|\d{1,2})/g : /\$(\$|&|`|'|\d{1,2}|<[^>]*>)/g;
+  return template.replace(tokens, (token, key) => {
     if (key === '$') return '$';
     if (key === '&') return match;
     if (key === '`') return input.slice(0, offset);
     if (key === "'") return input.slice(offset + match.length);
-    if (key.startsWith('<')) return groups === undefined ? token : (groups[key.slice(1, -1)] ?? '');
+    if (key.startsWith('<')) return groups[key.slice(1, -1)] ?? '';
     const n = Number(key);
     if (n > 0 && n <= captures.length) return captures[n - 1] ?? '';
     if (key.length === 2 && Number(key[0]) > 0 && Number(key[0]) <= captures.length)
@@ -44,8 +45,8 @@ export function rewriter(emit) {
       edits.push({ start: offset, end: offset + args[0].length, after });
       return after;
     };
-    // The returned native result is deliberately unused: output is constructed
-    // by the same span engine whose actual certificates are checked in Lean.
+    // The returned native result is deliberately unused: the span engine builds the output,
+    // so the edits it emits are the ones it applied.
     if (all) input.replaceAll(pattern, collect);
     else input.replace(pattern, collect);
     return applyEdits(input, edits, emit, String(pattern));
