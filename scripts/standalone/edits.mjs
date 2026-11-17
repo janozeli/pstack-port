@@ -18,12 +18,14 @@ export function applyEdits(input, edits, emit, rule) {
 // ECMAScript replacement-string expansion. Matching stays with the native RegExp
 // engine; Lean checks framing, not the semantics of JavaScript regular expressions.
 function expand(template, match, captures, offset, input, groups) {
-  return template.replace(/\$(\$|&|`|'|\d{1,2}|<[^>]*>)/g, (token, key) => {
+  // Without named groups `$<` is literal text, so the scan must not consume up to the next `>`.
+  const tokens = groups === undefined ? /\$(\$|&|`|'|\d{1,2})/g : /\$(\$|&|`|'|\d{1,2}|<[^>]*>)/g;
+  return template.replace(tokens, (token, key) => {
     if (key === '$') return '$';
     if (key === '&') return match;
     if (key === '`') return input.slice(0, offset);
     if (key === "'") return input.slice(offset + match.length);
-    if (key.startsWith('<')) return groups === undefined ? token : (groups[key.slice(1, -1)] ?? '');
+    if (key.startsWith('<')) return groups[key.slice(1, -1)] ?? '';
     const n = Number(key);
     if (n > 0 && n <= captures.length) return captures[n - 1] ?? '';
     if (key.length === 2 && Number(key[0]) > 0 && Number(key[0]) <= captures.length)
