@@ -7,8 +7,9 @@ export function compileMarkdown(path, input, host, skillNames, emit) {
   const invoke = codex ? '$pstack:' : '/pstack:';
   const config = codex ? '$CODEX_HOME/AGENTS.md' : '$CLAUDE_CONFIG_DIR/rules/pstack-models.md';
   const tool = codex ? 'spawn_agent' : 'Agent';
-  const hostDir = codex ? '.codex' : '.claude';
-  const skillsDir = `${hostDir}/skills/`;
+  // Codex reads project skills from .agents/, not from its own .codex/ directory.
+  const skillsRoot = codex ? '.agents' : '.claude';
+  const skillsDir = `${skillsRoot}/skills/`;
   const root = '../'.repeat(path.split('/').length - 1);
   let text = input;
   // Cursor's Custom Mode keeps poteto-mode on every turn; each host has its own way to start a session in that mode.
