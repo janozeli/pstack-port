@@ -4,7 +4,7 @@ In this page you install the plugin, pick which models pstack uses, and run your
 
 ## Install the plugin
 
-Install the package using the [distribution README](../../README.md#install). Start a new session and invoke `$pstack:setup-pstack`. Configuration is saved in `$CODEX_HOME/AGENTS.md`, using the default host directory when its environment variable is unset.
+Install the package using the [distribution README](../../README.md#install). Start a new session and invoke `$pstack:setup-pstack`. Configuration is saved in `$CLAUDE_CONFIG_DIR/rules/pstack-models.md`, using the default host directory when its environment variable is unset.
 
 ## Pick your models
 

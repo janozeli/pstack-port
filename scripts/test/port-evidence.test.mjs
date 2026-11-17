@@ -26,7 +26,7 @@ const sourceModel = new RegExp(String.raw`\b(?=[a-z0-9.-]*\d)[a-z][a-z0-9.]*(?:-
 const HOST_ONLY = {
   codex: [/\$pstack:/, /\bspawn_agent\b/, /\$CODEX_HOME\b/, /\.agents\/skills\//, /\.codex-plugin\b/, /\bAGENTS\.md\b/, /\brequest_user_input\b/, /\bcodex -p poteto\b/,
     new RegExp(String.raw`(?<![:\w])gpt-6[\w.-]*`)],
-  'claude-code': [/\/pstack:/, /\$CLAUDE_CONFIG_DIR\b/, /\.claude\/skills\//, /\.claude-plugin\b/, /\bpstack-models\.md\b/, /\bAskUserQuestion\b/, /\bclaude --agent\b/, /\bCLAUDE_SESSION_ID\b/,
+  'claude-code': [/\/pstack:/, /\.claude\/skills\//, /\.claude-plugin\b/, /\bAskUserQuestion\b/, /\bclaude --agent\b/, /\bCLAUDE_SESSION_ID\b/,
     new RegExp(String.raw`(?<![:\w])(?:opus|fable|haiku|sonnet) (?:${EFFORTS.join('|')})\b`)],
 };
 

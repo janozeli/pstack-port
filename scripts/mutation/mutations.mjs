@@ -92,7 +92,7 @@ export const mutations = [
   { id: 'S02', area: 'sections', desc: "poteto-help: Claude command fixed in both packages",
     edits: [[C, "use \\`${invoke}setup-pstack\\` to configure it", "use \\`/pstack:setup-pstack\\` to configure it"]] },
   { id: 'S03', area: 'sections', desc: "setup guide: Claude configuration path in both packages",
-    edits: [[C, "Configuration is saved in \\`${config}\\`,", "Configuration is saved in \\`$CLAUDE_CONFIG_DIR/rules/pstack-models.md\\`,"]] },
+    edits: [[C, "Configuration is saved in \\`$CLAUDE_CONFIG_DIR/rules/pstack-models.md\\`,", "Configuration is saved in \\`$CODEX_HOME/AGENTS.md\\`,"]] },
   { id: 'S04', area: 'sections', desc: "setup guide: medium budget lowers effort two steps", survives: NEUTRAL_PROSE,
     edits: [[C, "medium lowers it one step; small", "medium lowers it two steps; small"]] },
   { id: 'S05', area: 'sections', desc: "poteto-mode: delegates ignore panel lengths", survives: NEUTRAL_PROSE,
