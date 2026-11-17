@@ -4,16 +4,7 @@ name: Mutation score
 on:
   pull_request:
     paths:
-      - scripts/standalone/**
-      - scripts/generate-*
-      - scripts/test/**
       - scripts/mutation/**
-      - pstack/**
-      - cursor-team-kit/skills/control-cli/**
-      - cursor-team-kit/skills/control-ui/**
-      - cursor-team-kit/skills/deslop/**
-      - package-lock.json
-      - .github/workflows/mutation.yml
   workflow_dispatch:
 
 permissions:
