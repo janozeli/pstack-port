@@ -87,7 +87,7 @@ export const mutations = [
     write: [['pstack/docs/reference.md', '# Reference\n\nNew upstream document.\n']] },
 
   // One fault per section() body in compile.mjs: a spelling of the other host where the body depends on the host, a reversed instruction where it does not.
-  { id: 'P01', area: 'sections', desc: "recall: reads conversation content before it scopes candidates by workspace",
+  { id: 'P01', area: 'sections', desc: "recall: reads conversation content before it scopes candidates by workspace", survives: NEUTRAL_PROSE,
     edits: [[C, "Scope each candidate by workspace metadata before reading conversation content.", "Read conversation content before scoping each candidate by workspace metadata."]] },
   { id: 'S01', area: 'sections', desc: "reflect: session identity instruction reversed", survives: NEUTRAL_PROSE,
     edits: [[C, "Do not choose a transcript by recency", "Choose a transcript by recency"]] },
