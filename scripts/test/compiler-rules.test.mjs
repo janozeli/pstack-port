@@ -14,7 +14,7 @@ const cases = [
     'Pass a read-only brief and a post-run git status check and tools sufficient for the task. Use the host-supported background dispatch route, the host-supported isolation route and local execution. tool restrictions can remove required integrations.'],
   ['host skill, plugin and manifest directories',
     'Copy .cursor/skills/x, ~/.cursor/skills/y, ~/.cursor/plugins/z and .cursor-plugin/plugin.json.',
-    'Copy .agents/skills/x, ~/.agents/skills/y, $CODEX_HOME/plugins/z and .codex-plugin/plugin.json.',
+    'Copy .codex/skills/x, ~/.agents/skills/y, $CODEX_HOME/plugins/z and .codex-plugin/plugin.json.',
     'Copy .claude/skills/x, $CLAUDE_CONFIG_DIR/skills/y, $CLAUDE_CONFIG_DIR/plugins/z and .claude-plugin/plugin.json.'],
   ['host names and adapter documents',
     'Cursor also exposes hooks. See docs/harness/codex.md and docs/harness/claude-code.md.',
