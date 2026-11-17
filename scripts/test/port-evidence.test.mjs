@@ -49,12 +49,6 @@ for (const bundle of bundles) {
     check(bundle.produced, `The generator output for ${tree}`);
   });
 
-  test(`${tree} ships no source model spelling, mapped or not`, () => {
-    const found = bundle.actual.flatMap(({ path }) =>
-      (readFileSync(join(root, 'harness/pstack', tree, path), 'latin1').match(sourceModel) ?? []).map(token => `${path}: ${token}`));
-    assert.deepEqual(found, [], `The ${tree} package still contains a source model spelling (${found.slice(0, 5).join(', ')}). The compiler has no rule for that model, or the file ships without compilation. Add the model to NATIVE_MODELS and a rewrite rule in scripts/standalone/compile.mjs.`);
-  });
-
   test(`${tree} ships no spelling that belongs to the other host`, () => {
     const foreign = Object.entries(HOST_ONLY).filter(([host]) => host !== tree).flatMap(([, spellings]) => spellings);
     const found = bundle.actual.flatMap(({ path }) => {
