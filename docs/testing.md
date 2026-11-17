@@ -47,6 +47,29 @@ Use `--cli /absolute/path/to/binary` if a version-manager shim depends on the or
 
 `npm test` runs the real renderer and compares three inventories for each host: the files derived from `git ls-files pstack` and the port policy, the renderer output, and the committed package, by path, bytes and executable bit. A tracked source path must ship or be listed in `NOT_SHIPPED` in `scripts/test/port-evidence.mjs`. The same run checks each native role seat against the model policy, rebuilds each compiled file from its source through the emitted rewrite steps, and rejects any source model spelling in a shipped file. Property tests compare the rewrite engine with the native `String` replacement methods.
 
+## Mutation run
+
+`npm run test:mutation` checks the tests themselves. `scripts/mutation/mutations.mjs` lists realistic faults in the compiler, the rewrite engine, the generator and the source. For each one the runner clones `HEAD`, applies the fault, regenerates the packages as a real commit would, and runs `npm test`. A fault that `npm test` does not catch fails the run unless its entry records why it is accepted (`survives`) or why it changes nothing (`equivalent`). The runner tests committed code only, so commit before you run it. Pass mutation IDs to run a subset.
+
+The `Mutation score` workflow runs it on pull requests that change the compiler, the generator, the tests, the mutation list or the source, and on manual dispatch.
+
+## After an upstream sync
+
+Merge upstream, then run `node scripts/generate-pstack-harness-trees.mjs` and `npm test`. Each failure below names a decision that the sync needs.
+
+| Failure | Meaning | Action |
+| --- | --- | --- |
+| `source section changed: <text>` from the generator | Upstream moved or reworded the text that a `section()` call in `scripts/standalone/compile.mjs` replaces. | Update the anchors, and rewrite the replacement if the upstream meaning changed. |
+| `unresolved host dependency` from the generator | New source text names a Cursor feature. | Add a rewrite rule and a case in `scripts/test/compiler-rules.test.mjs`. |
+| `no rule for <seat>` in the role table test, or a source model spelling in a shipped file | Upstream changed its default models. | Decide the native model for each host, then update `NATIVE_MODELS` in `scripts/test/port-evidence.mjs`, the model rules in the compiler, and the mapping text in `README.md`. |
+| `missing` or `extra` paths in the inventory test | Upstream added, moved or removed a source path. | Ship it through the generator, or list it in `NOT_SHIPPED` with the reason. |
+| A spelling that belongs to the other host | A replacement uses one host's command, path or model in both packages. | Make the replacement depend on the host. |
+| `the mutation no longer applies` from the mutation run | The code that a fault edits changed shape. | Update the entry so that it describes the same fault. |
+
+Then set the port version in `TARGETS` in the generator to the new upstream version, regenerate, and commit the generated packages with the change. Read the diff under `harness/pstack/`: the tests do not judge the meaning of rewritten prose, so that diff is the review of it.
+
+A rule can stop firing when upstream removes its text. To list such rules, collect the `rule` of every step that `render` emits and compare with the rules in the compiler. Delete a rule only when `git log -S` shows that its text left the source once and did not return, and keep a synthetic case for each rule you keep.
+
 ## CI coverage
 
 The workflow runs on every pull request, pushes to `main`, and manual dispatch. It has separate jobs for repository validation, each Bun package, statechart, and each native host. A failure in one suite does not prevent unrelated suites from reporting. The token has read-only repository permissions. Jobs have finite timeouts, and superseded runs are cancelled.

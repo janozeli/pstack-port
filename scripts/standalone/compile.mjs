@@ -103,7 +103,6 @@ Read the endpoint from the created service. Use the host secret-request mechanis
       "You only override what you care about. A missing role uses its default. To reset a role, remove only its line inside the pstack models block in AGENTS.md. To reset all roles, remove only the pstack models block between <!-- pstack models --> and <!-- /pstack models -->, then rerun /setup-pstack. Preserve AGENTS.md and all instructions outside that block. A rerun migrates recognized old native defaults, shows the replacements, and preserves other choices still present in the block.");
   }
   text = edit.replace(text, /Cursor also exposes/g, 'the host exposes');
-  text = edit.replace(text, /Otherwise inspect the `mcps\/` directory Cursor exposes for enabled MCP servers\./g, 'Otherwise use the host tool-discovery mechanism for enabled MCP servers.');
   text = edit.replace(text, /`cursor-team-kit` publishes `control-cli` \(CLIs and TUIs\) and `control-ui` \(browser \/ Electron \/ web UIs\)\./g, 'This package bundles `control-cli` (CLIs and TUIs) and `control-ui` (browser / Electron / web UIs).');
   text = edit.replace(text, /, not Cursor's built-in babysit skill, whose description matches the same words/g, ', using the bundled playbook');
   text = edit.replace(text, /This playbook replaces Cursor's built-in babysit skill for these requests, so do not route there even though its description matches the same words\./g, 'Use this bundled playbook for these requests.');
@@ -122,7 +121,6 @@ Read the endpoint from the created service. Use the host secret-request mechanis
   text = edit.replace(text, /node pstack\/skills\//g, 'node <pstack skills dir>/');
   text = edit.replace(text, /`pstack\/skills\//g, '`<pstack skills dir>/');
   if (path === 'skills/poteto-mode/SKILL.md') section('**Match the model to the job.**', "You own every subagent's work.", '**Match the model to the job.** Start from the configured role and effort. Raise effort one supported step for the hardest work, lower it for routine work, and preserve the requested provider family. Verification keeps the swarm workers role. Split model from effort before dispatch. Use speed controls only if the live schema supports them and urgency warrants them. Never append a speed suffix to a native model ID. Follow the supported-effort fallback in docs/runtime.md; report unavailable models, overrides, and any reduced diversity instead of inventing IDs.');
-  text = edit.replace(text, /\*\*Do not use readonly\/Ask mode\.\*\* It strips MCP access, which disables the MCP-backed investigators and the synthesizer's citation spot-checks\./g, 'Keep the tools needed for MCP-backed investigation and citation checks; instruct investigators not to edit.');
   text = edit.replace(text, /, and mention once that a Custom Mode keeps it on\./g, `, and mention once that ${mode} keeps it on.`);
   text = edit.replace(text, /Keep the program's state in the Project tracker \(`notes\.md`\) and the Project store\./, "Keep the program's state in the coordinator checkout's `notes.md`, one row per task with owner, branch, head SHA, dependencies, evidence and next action.");
   text = edit.replace(text, /^Short works because the playbook holds the structure,.*$/m, `Short works because the playbook holds the structure, and ${mode} keeps poteto-mode in context on every turn. Your words carry the intent, and the skill carries the rigor.`);
@@ -146,9 +144,6 @@ Read the endpoint from the created service. Use the host secret-request mechanis
   text = edit.replace(text, /Spawn one Task subagent with `subagent_type: generalPurpose` and `readonly: true` that explores and explains in one pass\./, codex
     ? 'Spawn one `spawn_agent` worker told not to edit, with a `git status` check after it returns. Read-only is instructed, not enforced. It explores and explains in one pass.'
     : 'Spawn one `Agent` subagent with `subagent_type: "pstack:poteto-readonly"`, which has no file-editing tools. It explores and explains in one pass.');
-  text = edit.replace(text, /Every spawn is a Task subagent with `subagent_type: generalPurpose` and `readonly: true`\./, codex
-    ? 'Every spawn is a `spawn_agent` worker told not to edit, with a `git status` check after it returns; Codex workers share the parent\'s sandbox, so read-only is instructed, not enforced.'
-    : 'Every spawn is an `Agent` subagent with `subagent_type: "pstack:poteto-readonly"`, which has no file-editing tools.');
   text = edit.replace(text, /`Task`|\bTask tool\b|\bTask calls?\b|\bTask subagent\b|\bTask spawn\b/g, match => match === '`Task`' ? '`'+tool+'`' : match.replace('Task',tool));
   text = edit.replace(text, /\bAskQuestion\b/g, codex ? 'request_user_input when available' : 'AskUserQuestion');
   text = edit.replace(text, /`subagent_type: (?:"?generalPurpose"?)`/g, codex ? 'a native worker with a complete message' : '`subagent_type: "general-purpose"`');
@@ -160,7 +155,6 @@ Read the endpoint from the created service. Use the host secret-request mechanis
   text = edit.replace(text, /`run_in_background: true`/g, 'the host-supported background dispatch route');
   text = edit.replace(text, /`environment: "cloud"`/g, 'the host-supported isolation route');
   text = edit.replace(text, /\bclaude-opus-5-5-(max|xhigh|high|medium|low)(?:-fast)?\b/g, (_, effort) => `${codex ? 'gpt-6.1-sol' : 'opus'} ${effort}`);
-  text = edit.replace(text, /\bgrok-4\.7-(max|xhigh|high|medium|low)(?:-fast)?\b/g, (_, effort) => `${codex ? 'gpt-6.1-sol' : 'opus'} ${effort}`);
   text = edit.replace(text, /\bclaude-fable-5-2-(max|xhigh|high|medium|low)(?:-fast)?\b/g, (_, effort) => `${codex ? 'gpt-6-astra' : 'fable'} ${effort}`);
   text = edit.replace(text, /\bgemini-4-carbon-(max|xhigh|high|medium|low)(?:-fast)?\b/g, (_, effort) => `${codex ? 'gpt-6.1-sol' : 'opus'} ${effort}`);
   text = edit.replace(text, /Cursor's built-in `create-skill`(?: skill)?|the \*\*create-skill\*\* skill \(Cursor's built-in for authoring SKILL.md files\)/g, 'the skill-authoring procedure in docs/runtime.md');
@@ -169,7 +163,6 @@ Read the endpoint from the created service. Use the host secret-request mechanis
   text = edit.replace(text, /(?:from|in) (?:the )?`cursor-team-kit`(?: plugin)?/g, 'bundled with this package');
   text = edit.replace(text, /Cursor's `\/loop` command(?: \(a built-in, not a pstack skill\))?/g, codex ? "Codex's built-in `/goal` command (not a pstack skill), with the bundled `watch-pr` for events and T3 `schedule_task` for a timed heartbeat" : "Claude Code's built-in `/loop` command (not a pstack skill)");
   text = edit.replace(text, /Cursor cloud agent/g, 'isolated worker');
-  text = edit.replace(text, /\bCursor environment\b/g, `${host} environment`);
   text = edit.replace(text, /\/?create-skill/g, 'skill-authoring procedure');
   // Claude Code has the same built-in /loop. Codex continues with /goal; only T3 schedules a timed tick.
   if (codex) {

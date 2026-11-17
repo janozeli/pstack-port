@@ -1,0 +1,40 @@
+name: Mutation score
+
+# The score can change only when the compiler, the generator, the tests, the mutation list or the source change.
+on:
+  pull_request:
+    paths:
+      - scripts/standalone/**
+      - scripts/generate-*
+      - scripts/test/**
+      - scripts/mutation/**
+      - pstack/**
+      - cursor-team-kit/skills/control-cli/**
+      - cursor-team-kit/skills/control-ui/**
+      - cursor-team-kit/skills/deslop/**
+      - package-lock.json
+      - .github/workflows/mutation.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mutation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  mutation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.23.4
+          cache: npm
+      - run: npm ci
+      - name: Install audit test tools
+        run: sudo apt-get update && sudo apt-get install -y jq ripgrep
+      - name: Apply each recorded fault and require npm test to fail
+        run: npm run test:mutation
