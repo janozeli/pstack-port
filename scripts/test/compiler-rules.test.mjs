@@ -6,9 +6,9 @@ import { EFFORTS, NATIVE_MODELS } from './port-evidence.mjs';
 // Inputs the shipped documents may not contain today, so a rule keeps its test when upstream text stops exercising it.
 const cases = [
   ['a slash command only where it stands alone',
-    'Run /reflect now. Read skills/reflect and docs/reflect. Open https://example.test/reflect or a:/reflect. Keep /reflect-notes and /reflect/x.',
-    'Run $pstack:reflect now. Read skills/reflect and docs/reflect. Open https://example.test/reflect or a:/reflect. Keep /reflect-notes and /reflect/x.',
-    'Run /pstack:reflect now. Read skills/reflect and docs/reflect. Open https://example.test/reflect or a:/reflect. Keep /reflect-notes and /reflect/x.'],
+    'Run /reflect now. Read skills/reflect and docs/reflect. Open https://example.test/reflect or a:/reflect, not https://reflect.example. Keep /reflect-notes and /reflect/x.',
+    'Run $pstack:reflect now. Read skills/reflect and docs/reflect. Open https://example.test/reflect or a:/reflect, not https://reflect.example. Keep /reflect-notes and /reflect/x.',
+    'Run /pstack:reflect now. Read skills/reflect and docs/reflect. Open https://example.test/reflect or a:/reflect, not https://reflect.example. Keep /reflect-notes and /reflect/x.'],
   ['Cursor dispatch fields',
     'Pass `readonly: true` and `readonly: false`. Use `run_in_background: true`, `environment: "cloud"` and `environment: "local"`. readonly strips MCPs.',
     'Pass a read-only brief and a post-run git status check and tools sufficient for the task. Use the host-supported background dispatch route, the host-supported isolation route and local execution. tool restrictions can remove required integrations.'],

@@ -19,6 +19,17 @@ const callback = fc.constantFrom(
   () => '$&',
 );
 
+// Run first on every seed: corners that random generation reaches only now and then.
+const eleven = ['(a)?(b)?(c)?(X)?(a)?(b)?(c)?(X)?(a)?(b)?(c)', 'g'];
+const rareCorners = [
+  ['abc', eleven, '[$10|$11|$12|$1]', false],
+  ['XabXc', eleven, '$10$9', true],
+  ['aXb', ['X', 'g'], '$<x>$$$<', false],
+  ['ab', ['(?<x>a)|(?<y>b)', 'g'], '$<x>$<y>$<z>$<', false],
+  ['a1', ['a', ''], () => 7, false],
+  ['abc', 'b', 'X', false],
+];
+
 function native(input, pattern, replacement, all) {
   try { return { value: all ? input.replaceAll(pattern, replacement) : input.replace(pattern, replacement) }; }
   catch (error) { return { threw: error.constructor.name }; }
@@ -43,7 +54,7 @@ test('replace and replaceAll equal the native String methods and emit the edits 
       assert.equal(step.chunks.map(c => c.keep + c.before).join('') + step.tail, input);
       assert.equal(step.chunks.map(c => c.keep + c.after).join('') + step.tail, actual);
     }
-  }), { numRuns: 2000 });
+  }), { numRuns: 2000, examples: rareCorners });
 });
 
 test('ordered disjoint edits equal the same splices applied from the end', () => {
