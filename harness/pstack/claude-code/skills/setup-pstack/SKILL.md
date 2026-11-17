@@ -61,9 +61,10 @@ reflect tooling: opus high
 reflect judgment, divergent, synthesizer: opus xhigh
 arena runners: fable high, opus high, opus high
 arena cross-judge pool: fable high, opus high, opus high
-swarm workers: opus high
+swarm workers: fable high
 architect runners: fable high, opus high, opus high
 interrogate reviewers: fable high, opus high, opus high
+review panel: opus high, fable high
 ```
 
 These defaults use only `opus` and `fable`. The source gives the third seat of each panel to a model from another vendor. This host has none, so that seat is a second `opus high`, and `arena cross-judge pool` then holds no judge from another family. The two-provider defaults give that third seat to `codex:gpt-6.1-sol high`, in `arena cross-judge pool` on any host, and in T3 also in `arena runners`, `architect runners` and `interrogate reviewers`. Every other role keeps the value above.
