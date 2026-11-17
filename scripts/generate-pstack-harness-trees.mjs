@@ -118,7 +118,6 @@ function render({ harness, manifests, manifestFields, userInvoked: policy }, emi
   files.set("docs/runtime.md", { bytes: Buffer.from(runtime(harness)), executable: false });
   if (harness !== "Codex") files.set("agents/poteto-mode.md", { bytes: Buffer.from(coordinator), executable: false });
   if (harness !== "Codex") files.set("agents/poteto-readonly.md", { bytes: Buffer.from(readonlyAgent), executable: false });
-  files.set("LICENSE", file(join(PSTACK, "LICENSE")));
   const manifest = file(join(PSTACK, "plugin.json"));
   if (manifestFields) {
     manifest.bytes = Buffer.from(`${JSON.stringify({ ...JSON.parse(manifest.bytes), ...manifestFields }, null, 2)}\n`);
