@@ -65,9 +65,10 @@ reflect tooling: claude-opus-5-5-high-fast
 reflect judgment, divergent, synthesizer: claude-opus-5-5-xhigh
 arena runners: claude-fable-5-2-high, claude-opus-5-5-high-fast, gemini-4-carbon-high
 arena cross-judge pool: claude-fable-5-2-high, claude-opus-5-5-high-fast, gemini-4-carbon-high
-swarm workers: claude-opus-5-5-high-fast
+swarm workers: claude-fable-5-2-high
 architect runners: claude-fable-5-2-high, claude-opus-5-5-high-fast, gemini-4-carbon-high
 interrogate reviewers: claude-fable-5-2-high, claude-opus-5-5-high-fast, gemini-4-carbon-high
+review panel: claude-opus-5-5-high, claude-fable-5-2-high
 ```
 
 ### 6. Confirm

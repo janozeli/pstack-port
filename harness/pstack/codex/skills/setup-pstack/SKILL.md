@@ -61,9 +61,10 @@ reflect tooling: gpt-6.1-sol high
 reflect judgment, divergent, synthesizer: gpt-6.1-sol xhigh
 arena runners: gpt-6-astra high, gpt-6.1-sol high, gpt-6.1-sol high
 arena cross-judge pool: gpt-6-astra high, gpt-6.1-sol high, gpt-6.1-sol high
-swarm workers: gpt-6.1-sol high
+swarm workers: gpt-6-astra high
 architect runners: gpt-6-astra high, gpt-6.1-sol high, gpt-6.1-sol high
 interrogate reviewers: gpt-6-astra high, gpt-6.1-sol high, gpt-6.1-sol high
+review panel: gpt-6.1-sol high, gpt-6-astra high
 ```
 
 These defaults use only `gpt-6.1-sol` and `gpt-6-astra`. The source gives the third seat of each panel to a model from another vendor. This host has none, so that seat is a second `gpt-6.1-sol high`, and `arena cross-judge pool` then holds no judge from another family. The two-provider defaults give that third seat to `claude:opus high`, in `arena cross-judge pool` on any host, and in T3 also in `arena runners`, `architect runners` and `interrogate reviewers`. Every other role keeps the value above.

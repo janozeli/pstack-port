@@ -73,7 +73,7 @@ for (const host of ['codex','claude-code']) {
         const split = line.indexOf(': ');
         return [line.slice(0,split),line.slice(split+2).split(', ').length];
       });
-      assert.equal(entries.length, 13, 'the setup contract has 13 roles');
+      assert.equal(entries.length, 14, 'the setup contract has 14 roles');
       return entries;
     };
     assert.deepEqual(roles(join(root,'harness/pstack',host,'skills/setup-pstack/SKILL.md')), roles(join(root,'pstack/skills/setup-pstack/SKILL.md')));
