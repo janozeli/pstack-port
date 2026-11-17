@@ -42,6 +42,13 @@ for (const [host, tree, judgment, tool, config, code] of [
   ['Codex', 'codex', 'gpt-6.1-sol', 'spawn_agent', '$CODEX_HOME/AGENTS.md', 'gpt-6.1-sol'],
   ['Claude Code', 'claude-code', 'opus', 'Agent', '$CLAUDE_CONFIG_DIR/rules/pstack-models.md', 'opus'],
 ]) {
+  test(`${host} recall scopes history by workspace before reading conversation content`, () => {
+    const path = 'skills/recall/SKILL.md';
+    const source = readFileSync(join(root, 'pstack', path), 'utf8');
+    const output = compileMarkdown(path, source, host, []);
+    assert.ok(output.includes('Locate history using the Session evidence contract in docs/runtime.md. Scope each candidate by workspace metadata before reading conversation content.'));
+  });
+
   test(`${host} compiles native models, effort, tools and configuration independently`, () => {
     const input = '`claude-opus-5-5-xhigh`, `gemini-4-carbon-high-fast`, `inherit-parent medium`, `auto`, `Task`, `~/.cursor/rules/pstack-models.mdc`';
     const output = compileMarkdown('example.md', input, host, []);
