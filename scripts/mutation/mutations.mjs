@@ -65,7 +65,7 @@ export const mutations = [
   { id: 'C5', area: 'compiler', desc: "the `readonly: true` rule is removed",
     edits: [[C, "  text = edit.replace(text, /`readonly: true`/g, 'a read-only brief and a post-run git status check');\n", ""]] },
   { id: 'C6', area: 'compiler', desc: "Codex skills directory points at .claude/skills/",
-    edits: [[C, "codex ? '.agents/skills/' : '.claude/skills/'", "codex ? '.claude/skills/' : '.claude/skills/'"]] },
+    edits: [[C, "codex ? '.codex/skills/' : '.claude/skills/'", "codex ? '.claude/skills/' : '.claude/skills/'"]] },
 
   { id: 'I1', area: 'inventory', desc: "generator omits the root LICENSE",
     edits: [[G, '  files.set("LICENSE", file(join(PSTACK, "LICENSE")));\n', '']] },
