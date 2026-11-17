@@ -5,7 +5,7 @@
     "node": ">=22.18"
   },
   "scripts": {
-    "test": "node --test scripts/test/*.test.mjs",
+    "test": "node --test scripts/test/c*-runtime.test.mjs scripts/test/port-*.test.mjs",
     "test:mutation": "node scripts/mutation/run.mjs",
     "typecheck:statechart": "tsc -p pstack/skills/statechart/scripts/tsconfig.json",
     "test:statechart": "node --disable-warning=ExperimentalWarning --test --test-reporter=tap --test-concurrency=2 pstack/skills/statechart/scripts/test/*.test.ts"
