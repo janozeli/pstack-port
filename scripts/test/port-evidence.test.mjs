@@ -29,7 +29,6 @@ const HOST_ONLY = {
   'claude-code': [/\/pstack:/, /\$CLAUDE_CONFIG_DIR\b/, /\.claude\/skills\//, /\.claude-plugin\b/, /\bpstack-models\.md\b/, /\bAskUserQuestion\b/, /\bclaude --agent\b/, /\bCLAUDE_SESSION_ID\b/,
     new RegExp(String.raw`(?<![:\w])(?:opus|fable|haiku|sonnet) (?:${EFFORTS.join('|')})\b`)],
 };
-const same = { missing: [], extra: [], changedBytes: [], changedMode: [] };
 
 test('both packages are checked', () => {
   assert.deepEqual(bundles.map(b => b.tree).sort(), ['claude-code', 'codex']);
@@ -42,14 +41,18 @@ for (const bundle of bundles) {
   test(`${tree} ships exactly the files, bytes and executable bits derived from source`, () => {
     assert.ok(bundle.expected.length > 500, 'the derived inventory is not empty');
     assert.equal(new Set(bundle.expected.map(e => e.path)).size, bundle.expected.length, 'each path is derived once');
-    assert.deepEqual(difference(bundle.expected, bundle.actual), same, 'committed package against source');
-    assert.deepEqual(difference(bundle.expected, bundle.produced), same, 'renderer output against source');
+    const check = (actual, what) => {
+      const found = Object.entries(difference(bundle.expected, actual)).filter(([, paths]) => paths.length > 0).map(([kind, paths]) => `${kind}: ${paths.slice(0, 8).join(', ')}${paths.length > 8 ? ` and ${paths.length - 8} more` : ''}`);
+      assert.deepEqual(found, [], `${what} is not what the source derives (${found.join('; ')}). A \`missing\` path is derived from the source but absent: the generator dropped it, so fix the generator. An \`extra\` path has no source: delete it, or add its source. \`changedBytes\` or \`changedMode\` means the package is stale or was edited by hand: regenerate it. List a path in NOT_SHIPPED only when the port must never ship it.`);
+    };
+    check(bundle.actual, `The committed ${tree} package`);
+    check(bundle.produced, `The generator output for ${tree}`);
   });
 
   test(`${tree} ships no source model spelling, mapped or not`, () => {
     const found = bundle.actual.flatMap(({ path }) =>
       (readFileSync(join(root, 'harness/pstack', tree, path), 'latin1').match(sourceModel) ?? []).map(token => `${path}: ${token}`));
-    assert.deepEqual(found, []);
+    assert.deepEqual(found, [], `The ${tree} package still contains a source model spelling (${found.slice(0, 5).join(', ')}). The compiler has no rule for that model, or the file ships without compilation. Add the model to NATIVE_MODELS and a rewrite rule in scripts/standalone/compile.mjs.`);
   });
 
   test(`${tree} ships no spelling that belongs to the other host`, () => {
@@ -58,7 +61,7 @@ for (const bundle of bundles) {
       const text = readFileSync(join(root, 'harness/pstack', tree, path), 'latin1');
       return foreign.flatMap(spelling => (text.match(spelling) ? [`${path}: ${text.match(spelling)[0]}`] : []));
     });
-    assert.deepEqual(found, []);
+    assert.deepEqual(found, [], `The ${tree} package contains a command, path, tool or seat of the other host (${found.slice(0, 5).join(', ')}). A replacement in scripts/standalone/compile.mjs uses one host's spelling for both: make it depend on the host. Do not remove the spelling from HOST_ONLY.`);
   });
 
   test(`${tree} role table maps every source seat by the model policy`, () => {
@@ -67,7 +70,8 @@ for (const bundle of bundles) {
       name: role.name,
       seats: role.seats.map(seat => rules.get(seat) ?? `no rule for ${seat}`),
     }));
-    assert.deepEqual(bundle.nativeRoles, translated);
+    const wrong = translated.flatMap((role, i) => role.seats.flatMap((seat, j) => (bundle.nativeRoles[i]?.name === role.name && bundle.nativeRoles[i].seats[j] === seat ? [] : [`${role.name}: expected ${seat}, found ${bundle.nativeRoles[i]?.seats[j]}`])));
+    assert.deepEqual(bundle.nativeRoles, translated, `The ${tree} role table is not the NATIVE_MODELS translation of the source table (${wrong.slice(0, 4).join('; ')}). If the compiler maps a model wrongly, fix the rule in scripts/standalone/compile.mjs. Change NATIVE_MODELS only when the port policy changes, and change README.md with it.`);
   });
 
   test(`${tree} rewrite chains rebuild every compiled file from its source`, () => {
