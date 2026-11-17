@@ -53,7 +53,7 @@ Use `--cli /absolute/path/to/binary` if a version-manager shim depends on the or
 
 ## The merge gate
 
-The `Gate` workflow is the check that decides whether a pull request may merge. It uses `pull_request_target`, so the workflow file and `scripts/gate/check.mjs` come from the base branch and the pull request cannot edit them. It checks out the pull request merged into the base branch and runs, in this order:
+The `Gate` workflow is the check that decides whether a pull request may merge. It uses `pull_request_target`, so GitHub takes the workflow file and `scripts/gate/check.mjs` from `main` and the pull request cannot edit them. It checks out the pull request merged into the base branch and runs, in this order:
 
 1. It fails if the pull request changes the gate itself: anything under `.github/` or `scripts/gate/`, or `scripts/mutation/run.mjs`.
 2. It stops with a pass if no port input changed.

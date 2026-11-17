@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// The merge gate for the port. The `Gate` workflow runs this file from the base branch against a checkout of
-// the pull request, so the pull request cannot edit the gate that judges it.
+// The merge gate for the port. The `Gate` workflow runs this file from the default branch against a checkout
+// of the pull request, so the pull request cannot edit the gate that judges it.
 //
 //   node scripts/gate/check.mjs <checkout> [--base REF] [--workers N]
 //
@@ -38,7 +38,7 @@ console.log(`${changed.length} files changed against the base branch`);
 
 const gateFiles = changed.filter(file => GATE_FILES.test(file));
 if (gateFiles.length > 0) problem('The pull request changes the gate',
-  `${gateFiles.join(', ')} define the merge gate. The gate runs from the base branch, so it cannot judge its own replacement, and no change in this pull request can make this check pass. Move every other change to a separate pull request. Then stop and tell the repository owner that this one needs the owner to merge it.`);
+  `${gateFiles.join(', ')} define the merge gate. The gate runs from main, so it cannot judge its own replacement, and no change in this pull request can make this check pass. Move every other change to a separate pull request. Then stop and tell the repository owner that this one needs the owner to merge it.`);
 
 if (!changed.some(file => PORT_INPUTS.test(file))) {
   console.log('No port input changed: the tests and the mutation run are skipped.');

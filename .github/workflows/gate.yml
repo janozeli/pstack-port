@@ -1,7 +1,7 @@
 name: Gate
 
-# pull_request_target takes this file and the script it runs from the base branch.
-# A pull request therefore cannot change the gate that judges it.
+# GitHub takes a pull_request_target workflow and its default checkout from the default branch.
+# A pull request therefore cannot change the gate that judges it, whatever branch it targets.
 on:
   pull_request_target:
     types: [opened, synchronize, reopened, ready_for_review]
@@ -20,12 +20,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - name: Check out the gate from the base branch
+      - name: Check out the gate from the default branch
         uses: actions/checkout@v4
         with:
           path: base
           persist-credentials: false
-      - name: Check out the pull request merged into the base branch
+      - name: Check out the pull request merged into its base branch
         uses: actions/checkout@v4
         with:
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
@@ -37,5 +37,5 @@ jobs:
           node-version: 22.23.4
       - name: Install audit test tools
         run: sudo apt-get update && sudo apt-get install -y jq ripgrep
-      - name: Judge the pull request with the base branch's gate
+      - name: Judge the pull request with the default branch's gate
         run: node base/scripts/gate/check.mjs pr
