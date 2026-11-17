@@ -118,6 +118,20 @@ test('no package claims the system prompt names a history path', () => {
   }
 });
 
+test('recall scopes history by workspace before it reads conversation content, as the runtime contract says', () => {
+  const order = (text, file) => {
+    const sentence = text.match(/[^.\n]*workspace metadata[^.\n]*\./i)?.[0];
+    assert.ok(sentence, `${file}: no history scoping rule`);
+    const scope = sentence.search(/\bscop/i), read = sentence.search(/\b(read|inspect)/i);
+    assert.ok(scope >= 0 && read >= 0 && scope < read, `${file}: ${sentence}`);
+  };
+  for (const host of ['claude-code', 'codex']) {
+    for (const file of ['docs/runtime.md', 'skills/recall/SKILL.md']) {
+      order(readFileSync(join(root, 'harness/pstack', host, file), 'utf8'), `${host}/${file}`);
+    }
+  }
+});
+
 test('Claude skills that audit this conversation state its session ID', () => {
   for (const skill of ['poteto-mode', 'reflect', 'show-me-your-work']) {
     const claude = readFileSync(join(root, 'harness/pstack/claude-code/skills', skill, 'SKILL.md'), 'utf8');
