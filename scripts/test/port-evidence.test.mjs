@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 import { sourceFile } from '../generate-pstack-harness-trees.mjs';
-import { collect, EFFORTS, syntaxRules } from './port-evidence.mjs';
+import { collect, EFFORTS, syntaxRules, walk } from './port-evidence.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const bundles = collect(root);
@@ -69,3 +70,14 @@ for (const bundle of bundles) {
     }
   });
 }
+
+test('package enumeration lists development dependencies and rejects symlinks', t => {
+  const dir = mkdtempSync(join(tmpdir(), 'pstack-inventory-'));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  mkdirSync(join(dir, 'node_modules'));
+  writeFileSync(join(dir, 'node_modules', 'unexpected'), 'bytes');
+  writeFileSync(join(dir, '.DS_Store'), 'bytes');
+  assert.deepEqual(walk(dir), ['.DS_Store', 'node_modules/unexpected']);
+  symlinkSync('node_modules/unexpected', join(dir, 'link'));
+  assert.throws(() => walk(dir), /Unexpected symlink/);
+});

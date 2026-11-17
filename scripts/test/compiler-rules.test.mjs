@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { compileMarkdown } from '../standalone/compile.mjs';
+import { EFFORTS, NATIVE_MODELS } from './port-evidence.mjs';
 
 // Inputs the shipped documents may not contain today, so a rule keeps its test when upstream text stops exercising it.
 const cases = [
@@ -40,3 +41,25 @@ for (const [name, input, codex, claude = codex] of cases) {
     assert.equal(compileMarkdown('example.md', input, 'Claude Code', ['reflect']), claude);
   });
 }
+
+test('actual compiler emits a connected trace including native model and command changes', () => {
+  for (const host of ['Codex', 'Claude Code']) {
+    const input = 'Keep this literal. grok-4.7-high-fast /reflect End.';
+    const steps = [];
+    const output = compileMarkdown('example.md', input, host, ['reflect'], s => steps.push(s));
+    let cursor = input;
+    for (const step of steps) { assert.equal(step.input, cursor); cursor = step.output; }
+    assert.equal(cursor, output);
+    assert.equal(steps.length, 2);
+  }
+});
+
+test('every source model spelling compiles to the policy model and keeps its effort', () => {
+  for (const [tree, host] of [['codex', 'Codex'], ['claude-code', 'Claude Code']]) {
+    const tokens = Object.entries(NATIVE_MODELS[tree]).flatMap(([family, native]) =>
+      EFFORTS.flatMap(effort => ['', '-fast'].map(fast => ({ source: `${family}-${effort}${fast}`, native: `${native} ${effort}` }))));
+    assert.equal(tokens.length, 40);
+    for (const a of tokens) for (const b of tokens)
+      assert.equal(compileMarkdown('example.md', `${a.source}, ${b.source}`, host, []), `${a.native}, ${b.native}`);
+  }
+});

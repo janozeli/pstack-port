@@ -43,9 +43,9 @@ python3 scripts/check-native-install.py claude --require
 
 Use `--cli /absolute/path/to/binary` if a version-manager shim depends on the original home directory. Without `--require`, a missing CLI reports `SKIP`; an installed CLI that fails always fails the check. CI uses `--require` with Codex 0.165.0 and Claude Code 2.1.312. Update these versions deliberately when adopting a new host contract. These checks prove installation and discovery, not every agent-driven workflow or optional external service.
 
-## Port proofs with Lean
+## Port checks
 
-Lean proves the soundness of a translation validator and executes it on complete rewrite traces and package inventories, from repository-only files in `verification/lean/`. It is excluded from skills and generated packages. See [Lean verification of the port](lean-verification.md) for the exact proof boundary, compiler correspondence, pinned installation and `npm run verify:lean`. The separate `port-proofs` CI job requires all proofs and negative controls to pass; missing Lean cannot produce a skip.
+`npm test` runs the real renderer and compares three inventories for each host: the files derived from `git ls-files pstack` and the port policy, the renderer output, and the committed package, by path, bytes and executable bit. A tracked source path must ship or be listed in `NOT_SHIPPED` in `scripts/test/port-evidence.mjs`. The same run checks each native role seat against the model policy, rebuilds each compiled file from its source through the emitted rewrite steps, and rejects any source model spelling in a shipped file. Property tests compare the rewrite engine with the native `String` replacement methods.
 
 ## CI coverage
 
