@@ -64,6 +64,8 @@ The `Gate` workflow is the check that decides whether a pull request may merge. 
 
 Each failure is one `::error::` line with the cause and the action. `gh run view <run> --log-failed | grep '::error'` prints them. To run the same gate before you push, commit and run `node scripts/gate/check.mjs . --base origin/main`.
 
+Branch protection on `main` requires `gate`, `validate`, `statechart`, both `bun-tools` jobs and both `native-install` jobs, with the branch up to date, and it binds administrators too. The `native-install` names carry the CLI version, so a version change must update that list.
+
 A pull request that the gate cannot pass by design, such as a change to the gate or the removal of a mutation, needs the repository owner. The owner asks an agent to run `node scripts/gate/override.mjs <number> --reason "..."`. The script requires every other check to be green, lifts only `gate`, merges the commit it inspected, restores the required checks and records the reason on the pull request. `--restore` repairs the list after an interrupted run.
 
 ## After an upstream sync
