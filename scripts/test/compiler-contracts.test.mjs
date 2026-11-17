@@ -72,4 +72,12 @@ for (const [host, tree, judgment, tool, config, code] of [
     const audit = readFileSync(join(root, 'pstack/skills/poteto-mode/scripts/worktree-audit.sh'), 'utf8');
     assert.throws(() => compileAudit(audit.replace('harness=cursor', 'harness=other'), host), /source.*changed/);
   });
+
+  test(`${host} recall scopes history by workspace before it reads conversation content`, () => {
+    const recall = readFileSync(join(root, 'harness/pstack', tree, 'skills/recall/SKILL.md'), 'utf8');
+    const rule = recall.split('\n').find(line => line.includes('Session evidence contract'));
+    assert.ok(rule, `${tree} recall no longer points at the Session evidence contract. Restore the recall replacement in scripts/standalone/compile.mjs.`);
+    const scope = rule.search(/\bscop\w* each candidate by workspace/i), read = rule.search(/\bread\w* conversation content/i);
+    assert.ok(scope >= 0 && read >= 0 && scope < read, `${tree} recall must scope each candidate by workspace before it reads conversation content, or it reads other workspaces' history: ${rule}`);
+  });
 }
