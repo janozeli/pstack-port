@@ -16,7 +16,7 @@ Run:
 
 [`/pstack:setup-pstack`](../../skills/setup-pstack/SKILL.md) detects the models you have access to, asks for a reasoning budget, shows you each role (code delegates, judgment, the review panels), and asks what you want. Answer the questions. It writes `$CLAUDE_CONFIG_DIR/rules/pstack-models.md`, a small rule every pstack skill reads.
 
-The large budget keeps each role at its default effort. Most roles start at xhigh, the hardest tasks at max, and panels and swarm workers at high. Unlimited raises each role one step; medium lowers it one step; small lowers it two steps on max > xhigh > high > medium > low, clamped at the ends. Use the highest supported effort at or below the target for each native model. Setup records effective settings and leaves unsupported roles needing a choice.
+The large budget keeps each role at its default effort. Code, prose, and judgment start at xhigh, and panels and swarm workers at high. No role runs above xhigh. Outside a review panel, `fable` runs only when you name it for a task or after two `opus` runs of the same brief fail their check. Large keeps each role; medium lowers it one step; small lowers it two steps on xhigh > high > medium > low, clamped at low. Use the highest supported effort at or below the target for each native model. Setup records effective settings and leaves unsupported roles needing a choice.
 
 You only override what you care about. A role with no line in the rule keeps the skill's default. To restore a default, delete that role's line. A rerun of `/pstack:setup-pstack` keeps any role whose model differs from the default. When a default changes, a rule written before the change still pins the old default until you run `/pstack:setup-pstack` again. That run replaces the old defaults it recognizes, tells you which, and keeps your other choices. To drop a pin it does not recognize, delete that role's line or the file first.
 
@@ -51,7 +51,7 @@ Pick something real but small, and describe it the way you'd describe it to a co
 /pstack:poteto-mode add a --json flag to this command. text output stays byte-identical. verify both.
 ```
 
-Watch the todo list. Its first items are the matched playbook's steps copied in, the Feature playbook for this prompt. If `/pstack:poteto-mode` skips a step, the step stays in the list with `skip: <reason>`, so you can see what it chose not to do.
+Watch the todo list. Its first items are the matched playbook's steps copied in, the Feature playbook for this prompt.
 
 Continue with normal follow-ups. To keep poteto-mode on for the whole session, the counterpart of the author's Custom Mode, start Claude Code with `claude --agent pstack:poteto-mode`. That coordinator reads the skill for each new task and after compaction. Otherwise invoke `/pstack:poteto-mode` again for each new task.
 

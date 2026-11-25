@@ -9,8 +9,8 @@ import { coordinator, readonlyAgent, runtime } from '../standalone/runtime.mjs';
 export const EFFORTS = ['low', 'medium', 'high', 'xhigh', 'max'];
 // The port policy, stated apart from the compiler: each source model family and the native model each package gives it.
 export const NATIVE_MODELS = {
-  codex: { 'claude-opus-5-5': 'gpt-6.1-sol', 'claude-fable-5-2': 'gpt-6-astra', 'gemini-4-carbon': 'gpt-6.1-sol' },
-  'claude-code': { 'claude-opus-5-5': 'opus', 'claude-fable-5-2': 'fable', 'gemini-4-carbon': 'opus' },
+  codex: { 'claude-opus-5-5': 'gpt-6.1-sol', 'claude-fable-5-2': 'gpt-6-astra', 'gemini-4-carbon': 'gpt-6.1-sol', 'gemini-4-neon': 'gpt-6.1-sol' },
+  'claude-code': { 'claude-opus-5-5': 'opus', 'claude-fable-5-2': 'fable', 'gemini-4-carbon': 'opus', 'gemini-4-neon': 'opus' },
 };
 export const INVOKE = { codex: '$pstack:', 'claude-code': '/pstack:' };
 
@@ -43,7 +43,7 @@ export function walk(root, dir = '') {
 }
 
 export function readRoles(text) {
-  const blocks = [...text.matchAll(/# budget:[^\n]*\n([\s\S]*?)\n```/g)];
+  const blocks = [...text.matchAll(/^# budget:[^\n]*\n([\s\S]*?)\n```/gm)];
   assert.equal(blocks.length, 1, 'Expected one complete role table');
   return blocks[0][1].split('\n').map(line => {
     const split = line.indexOf(': ');

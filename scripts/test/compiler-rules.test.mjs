@@ -19,6 +19,12 @@ const cases = [
   ['host names and adapter documents',
     'Cursor also exposes hooks. See docs/harness/codex.md and docs/harness/claude-code.md.',
     'the host exposes hooks. See docs/runtime.md and docs/runtime.md.'],
+  ['Cursor agent kinds',
+    'Starting any agent, whether a Task subagent or a Project worker, reads worker.md.',
+    'Starting any agent, whether a delegate or an isolated worker, reads worker.md.'],
+  ['the built-in babysit skill',
+    'PR status → the **Babysit** playbook, not Cursor\'s built-in babysit skill. Landing a green stack.',
+    'PR status → the **Babysit** playbook bundled with this package. Landing a green stack.'],
   ['session history location',
     'Read the `agent-transcripts/` directory the system prompt names, then the `agent-transcripts/` directory.',
     'Read the verified session-history location described in docs/runtime.md, then the verified session-history location.'],
@@ -48,8 +54,14 @@ test('every source model spelling compiles to the policy model and keeps its eff
   for (const [tree, host] of [['codex', 'Codex'], ['claude-code', 'Claude Code']]) {
     const tokens = Object.entries(NATIVE_MODELS[tree]).flatMap(([family, native]) =>
       EFFORTS.flatMap(effort => ['', '-fast'].map(fast => ({ source: `${family}-${effort}${fast}`, native: `${native} ${effort}` }))));
-    assert.equal(tokens.length, 30);
+    assert.equal(tokens.length, 40);
     for (const a of tokens) for (const b of tokens)
       assert.equal(compileMarkdown('example.md', `${a.source}, ${b.source}`, host, []), `${a.native}, ${b.native}`);
   }
+});
+
+test('the delegate agent keeps a native default model only where the host reads agent frontmatter', () => {
+  const input = '---\nname: poteto-agent\nmodel: claude-opus-5-5-xhigh-fast\n---\n\n# Poteto subagent\n';
+  assert.match(compileMarkdown('agents/poteto-agent.md', input, 'Claude Code', []), /^---\nname: poteto-agent\nmodel: opus\n---/);
+  assert.match(compileMarkdown('agents/poteto-agent.md', input, 'Codex', []), /^---\nname: poteto-agent\n---/);
 });

@@ -16,7 +16,7 @@ $pstack:setup-pstack
 
 [`$pstack:setup-pstack`](../../skills/setup-pstack/SKILL.md) detects the models you have access to, asks for a reasoning budget, shows you each role (code delegates, judgment, the review panels), and asks what you want. Answer the questions. It writes `$CODEX_HOME/AGENTS.md`, a small rule every pstack skill reads.
 
-The large budget keeps each role at its default effort. Most roles start at xhigh, the hardest tasks at max, and panels and swarm workers at high. Unlimited raises each role one step; medium lowers it one step; small lowers it two steps on max > xhigh > high > medium > low, clamped at the ends. Use the highest supported effort at or below the target for each native model. Setup records effective settings and leaves unsupported roles needing a choice.
+The large budget keeps each role at its default effort. Code, prose, and judgment start at xhigh, and panels and swarm workers at high. No role runs above xhigh. Outside a review panel, `gpt-6-astra` runs only when you name it for a task or after two `gpt-6.1-sol` runs of the same brief fail their check. Large keeps each role; medium lowers it one step; small lowers it two steps on xhigh > high > medium > low, clamped at low. Use the highest supported effort at or below the target for each native model. Setup records effective settings and leaves unsupported roles needing a choice.
 
 You only override what you care about. A missing role uses its default. To reset a role, remove only its line inside the pstack models block in AGENTS.md. To reset all roles, remove only the pstack models block between <!-- pstack models --> and <!-- /pstack models -->, then rerun $pstack:setup-pstack. Preserve AGENTS.md and all instructions outside that block. A rerun migrates recognized old native defaults, shows the replacements, and preserves other choices still present in the block.
 
@@ -51,7 +51,7 @@ Pick something real but small, and describe it the way you'd describe it to a co
 $pstack:poteto-mode add a --json flag to this command. text output stays byte-identical. verify both.
 ```
 
-Watch the todo list. Its first items are the matched playbook's steps copied in, the Feature playbook for this prompt. If `$pstack:poteto-mode` skips a step, the step stays in the list with `skip: <reason>`, so you can see what it chose not to do.
+Watch the todo list. Its first items are the matched playbook's steps copied in, the Feature playbook for this prompt.
 
 Continue with normal follow-ups. To keep poteto-mode on for the whole session, the counterpart of the author's Custom Mode, save this profile as `$CODEX_HOME/poteto.config.toml` (default `~/.codex/poteto.config.toml`) and start Codex with `codex -p poteto`:
 

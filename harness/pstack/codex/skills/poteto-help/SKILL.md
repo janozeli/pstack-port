@@ -49,7 +49,7 @@ This is the standalone Codex distribution. Follow the installed README for insta
 
 ## Start a task with `$pstack:poteto-mode`
 
-`$pstack:poteto-mode` matches the task to a playbook, copies the playbook's steps into the todo list, and runs the other skills as the steps need them. A step it skips stays in the list as `skip: <reason>`. A good prompt states the goal and how to tell it's done. It doesn't list skills, because a hand-written sequence tends to drop or reorder steps the playbook would keep. Read [`references/prompting.md`](references/prompting.md) before you help word one. [Guide page 2](../../docs/guide/02-poteto-mode.md) has examples.
+`$pstack:poteto-mode` matches the task to a playbook, copies the playbook's steps into the todo list, and runs the other skills as the steps need them. A good prompt states the goal and how to tell it's done. It doesn't list skills, because a hand-written sequence tends to drop or reorder steps the playbook would keep. Read [`references/prompting.md`](references/prompting.md) before you help word one. [Guide page 2](../../docs/guide/02-poteto-mode.md) has examples.
 
 Whether poteto-mode stays on depends on how the user starts it. Invoking it with a task loads the skill for that task, and it can fade as the chat moves on. To keep poteto-mode on for the whole session, the counterpart of the author's Custom Mode, save this profile as `$CODEX_HOME/poteto.config.toml` (default `~/.codex/poteto.config.toml`) and start Codex with `codex -p poteto`:
 
@@ -70,6 +70,7 @@ The default answer is `$pstack:poteto-mode`, which runs most of the others when 
 | Do any non-trivial task with rigor | [`$pstack:poteto-mode`](../poteto-mode/SKILL.md) |
 | Check that the agent understood their goal and the problem before it starts | [`$pstack:in-your-own-words`](../in-your-own-words/SKILL.md) |
 | Get a prompt rewritten deeper, not bigger, before sending it: what a top professional would add, their raw material and methods, and an outside check. It returns the prompt and doesn't do the task | [`$pstack:sharpen`](../sharpen/SKILL.md) |
+| Learn the expert words for what they're building, including words borrowed from neighboring fields, with every cited source checked, and get their description rewritten with them | [`$pstack:reframe`](../reframe/SKILL.md) |
 | Know how code works now, or where new code should live | [`$pstack:how`](../how/SKILL.md) |
 | Know why code is shaped this way, or where a number came from | [`$pstack:why`](../why/SKILL.md) |
 | Understand a change or subsystem, explained plainly | [`$pstack:teach`](../teach/SKILL.md) |
@@ -108,17 +109,16 @@ Close calls:
 
 - `$pstack:how` explains what the code does. `$pstack:why` explains the reasons. `$pstack:teach` runs one or both and explains the result plainly.
 - `$pstack:arena` gives every worker the same brief and merges the best parts. `$pstack:swarm` splits work into slices or a race and returns one report.
-- `$pstack:architect` implements right after it settles the design. Add "with checkpoint" to review the design before it writes code.
 - `$pstack:interrogate` reviews the diff. `$pstack:blast-radius` looks for breakage outside the diff and proves the one fact that makes the change safe.
 - `$pstack:recall` rebuilds context across recent chats. `$pstack:ketchup` covers only this chat since the user's last message. Resuming one specific chat or branch is the Session pickup playbook.
-- `$pstack:figure-it-out` designs one rigorous run. The Orchestrate playbook runs a program that spans days and many PRs. The Autonomous run playbook drives one task to a finish condition.
+- `$pstack:figure-it-out` designs one rigorous run. The Autonomous run playbook drives one task to a finish condition.
 
 This package also bundles `$pstack:deslop`, `control-cli`, and `control-ui`.
 
 Not in pstack:
 
 - `/goal` is a Codex built-in. Skill authoring uses the procedure in docs/runtime.md.
-- pstack has no `/orchestrate` skill. Orchestrate is a `$pstack:poteto-mode` playbook. If the slash menu shows `/orchestrate`, another plugin provides it.
+- pstack has no `/orchestrate` skill. If the slash menu shows `/orchestrate`, another plugin provides it.
 
 ## Playbooks and principles
 
@@ -131,7 +131,7 @@ Playbooks are step lists inside `$pstack:poteto-mode`, not skills, so they have 
 - "full autopilot on this queue" runs Autopilot-full. "autopilot, don't merge" runs Autopilot-stack.
 - "run the eval playbook" runs Eval.
 
-Without `$pstack:poteto-mode`, a phrase such as "babysit this pr" can start a different installed skill instead. The Playbooks section of [`poteto-mode`](../poteto-mode/SKILL.md) lists every playbook and when it applies. [Guide page 6](../../docs/guide/06-verify-and-ship.md) covers opening, babysitting, and landing a PR.
+Without `$pstack:poteto-mode`, a phrase such as "babysit this pr" can start a different installed skill instead. The Playbooks section of [`poteto-mode`](../poteto-mode/SKILL.md) lists every playbook. [Guide page 6](../../docs/guide/06-verify-and-ship.md) covers opening, babysitting, and landing a PR.
 
 pstack has no planning skill. The host’s planning mode, when available, works alongside it. For work that spans phases or stacked PRs, asking `$pstack:poteto-mode` for a plan runs the [Multi-phase plan playbook](../poteto-mode/playbooks/multi-phase-plan.md), which writes the plan and doesn't implement it. For a design question, the Prototype playbook or `$pstack:architect` settles it in code first.
 

@@ -3,7 +3,7 @@
 import { chmodSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, posix, relative } from "node:path";
 import { fileURLToPath } from "node:url";
-import { compileMarkdown, compileAudit, compilePlanChecker, coordinator, readonlyAgent, runtime } from "./standalone/compile.mjs";
+import { compileMarkdown, compileAudit, coordinator, readonlyAgent, runtime } from "./standalone/compile.mjs";
 
 import { rewriter } from "./standalone/edits.mjs";
 
@@ -20,13 +20,13 @@ const TARGETS = [
     tree: "claude-code",
     harness: "Claude Code",
     manifests: ["plugin.json", ".claude-plugin/plugin.json"],
-    manifestFields: { version: "0.15.42-claude.1", homepage: "https://github.com/janozeli/pstack-port", repository: "https://github.com/janozeli/pstack-port" },
+    manifestFields: { version: "0.15.48-claude.1", homepage: "https://github.com/janozeli/pstack-port", repository: "https://github.com/janozeli/pstack-port" },
   },
   {
     tree: "codex",
     harness: "Codex",
     manifests: [".codex-plugin/plugin.json"],
-    manifestFields: { skills: "./skills/", version: "0.15.42-codex.1", homepage: "https://github.com/janozeli/pstack-port", repository: "https://github.com/janozeli/pstack-port" },
+    manifestFields: { skills: "./skills/", version: "0.15.48-codex.1", homepage: "https://github.com/janozeli/pstack-port", repository: "https://github.com/janozeli/pstack-port" },
     userInvoked: CODEX_POLICY,
   },
 ];
@@ -104,10 +104,6 @@ function render({ harness, manifests, manifestFields, userInvoked: policy }, emi
   }
   const nativeHistory = harness === "Codex" ? "codex" : "claude";
   files.delete(`skills/poteto-mode/scripts/${nativeHistory === "codex" ? "claude" : "codex"}-worktree-activity.mjs`);
-  for (const name of ['check-plan.mjs', 'check-plan.test.ts']) {
-    const entry = files.get(`skills/poteto-mode/scripts/${name}`);
-    entry.bytes = Buffer.from(compilePlanChecker(entry.bytes.toString('utf8'), harness, trace(`skills/poteto-mode/scripts/${name}`)));
-  }
   const audit = files.get("skills/poteto-mode/scripts/worktree-audit.sh");
   audit.bytes = Buffer.from(compileAudit(audit.bytes.toString("utf8"), harness, trace("skills/poteto-mode/scripts/worktree-audit.sh")));
   for (const [path, entry] of files) {

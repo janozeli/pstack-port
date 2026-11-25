@@ -8,7 +8,7 @@ pstack skills use Cursor names. In Claude Code, read this file once per session 
 | --- | --- |
 | `Task` | `Agent`, with the task in `prompt`. Follow the host's delegation rules. |
 | `AskQuestion` | `AskUserQuestion` when offered. In noninteractive `-p` mode, state any unresolved required choice and leave dependent work pending. Do not treat an unanswered question as approval. |
-| Open a todolist | Use `TodoWrite` or the available task tools. Otherwise track the steps in your reply. |
+| Open a todolist, or copy steps into the todolist tool | Use `TodoWrite` or the available task tools. Otherwise track the steps in your reply. |
 | Run another pstack skill (`/name` or "the **name** skill") | Read `<pstack>/skills/<name>/SKILL.md` and follow it. User-only skills cannot be invoked by the model through `Skill`. Tell the user to type `/pstack:<name>`. |
 | `Grep`, `Glob` | Use the native tools, or `Bash` with `rg` and `rg --files` when absent. |
 
@@ -18,6 +18,7 @@ pstack skills use Cursor names. In Claude Code, read this file once per session 
 | --- | --- |
 | `subagent_type: generalPurpose` | `subagent_type: "general-purpose"`. |
 | `poteto-agent`, `comment-sicko` | `pstack:poteto-agent`, `pstack:comment-sicko`. Give the absolute installed skill path and the task context. |
+| The `model:` line in `poteto-agent`'s file | It holds a Cursor slug. Pass `model` and `effort` on every `Agent` call that spawns `pstack:poteto-agent`, mapped with the Models table, so that slug never reaches the API. |
 | `readonly: true` | Keep the required agent type and model; tell it "read-only, do not edit files" and check `git status` afterward. This is an instruction, not a filesystem sandbox. Use `Explore` only if its tools and effective model meet the role's contract. |
 | `readonly: false` | Omit. |
 | `environment: "cloud"` | Use the host's isolation tool. In T3, call `delegate_task` with `isolation: "worktree"`; never create a child's checkout in the shell. In native Claude Code, use `Agent` with `isolation: "worktree"` when its schema permits it. A worktree separates files, not machines, credentials, ports, or processes. |
@@ -50,7 +51,7 @@ Follow the source steps, including its budget labels, role list, panel sizes, co
 
 - Detect models and efforts from the live dispatch schema and entitlement information available in the session. Do not assume a fixed list of aliases or versions.
 - Defaults: map source Opus and Gemini to `opus` and Fable to `fable`, preserving each default effort only when available. Apply the supported-effort fallback above; do not invent an unavailable alias. A configuration without `# defaults: 2` migrates only the old native defaults recognized by the generated setup skill; show replacements before confirmation.
-- Budget: start from each role's source default effort. Keep it for `large`, raise it one step for `unlimited`, lower it one step for `medium`, and lower it two steps for `small`, clamped to the effort ladder. Apply this to real models, explicit aliases, and every panel entry. Bare `auto` and `inherit-parent` keep inherited effort on reruns; identify these roles as outside the selected budget and offer an explicit effort before confirming. Save effective supported values.
+- Budget: start from each role's source default effort. Keep it for `large`, lower it one step for `medium`, and lower it two steps for `small`, clamped to the effort ladder. No role runs above `xhigh`, and a saved `unlimited` budget migrates to `large`. Apply this to real models, explicit aliases, and every panel entry. Bare `auto` and `inherit-parent` keep inherited effort on reruns; identify these roles as outside the selected budget and offer an explicit effort before confirming. Save effective supported values.
 - Write only the dedicated `rules/pstack-models.md` file under the Claude configuration directory, without Cursor frontmatter. Keep the comment lines, `# defaults: 2` line, `# budget` line, and the source's role labels. Replace this configuration file on reruns; preserve every other rule and instruction file.
 
 ## Paths
