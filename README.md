@@ -39,7 +39,7 @@ Claude Code 2.1.292 or later is required for per-invocation subagent effort. Use
 
 The mappings keep default dispatch on the host. Fable and Opus both use the existing Codex judgment model, while Gemini uses the existing second model on each host. This preserves panel size and effort rather than claiming equal model capabilities. Codex therefore runs two independent Astra candidates in a default panel. That costs an extra candidate without adding a distinct model. A cross-provider judge still requires an available external seat.
 
-Upstream's Claude adapter maps Gemini to `inherit-parent`. This port keeps an explicit native second model so that seat does not change with the parent session. Migration replaces only the old default pair. Other panels retain Haiku or Sol seats because those remain valid native choices.
+Upstream's Claude adapter maps Gemini to `inherit-parent`. This port keeps an explicit native second model so that seat does not change with the parent session. Migration replaces only lists that match an old default exactly: the pair from before `# defaults: 2`, and the three-seat panels from before `# defaults: 3`. A saved `unlimited` budget becomes `large`, because upstream caps every role at `xhigh`. Other panels retain Haiku or Sol seats because those remain valid native choices.
 
 Each package also bundles the `deslop`, `control-cli` and `control-ui` skills that pstack calls, from this repository's MIT-licensed `cursor-team-kit`, with their license.
 

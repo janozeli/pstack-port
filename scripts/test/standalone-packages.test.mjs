@@ -68,12 +68,12 @@ for (const host of ['codex','claude-code']) {
   test(`${host} preserves setup roles and panel sizes`, () => {
     const roles = file => {
       const text = readFileSync(file,'utf8');
-      const table = text.slice(text.indexOf('# budget:')).split('```')[0];
+      const table = text.slice(text.search(/^# budget:/m)).split('```')[0];
       const entries = table.split('\n').filter(line => /^[a-z][^:]+: /.test(line)).map(line => {
         const split = line.indexOf(': ');
         return [line.slice(0,split),line.slice(split+2).split(', ').length];
       });
-      assert.equal(entries.length, 13, 'the setup contract has 13 roles');
+      assert.equal(entries.length, 9, 'the setup contract has 9 roles');
       return entries;
     };
     assert.deepEqual(roles(join(root,'harness/pstack',host,'skills/setup-pstack/SKILL.md')), roles(join(root,'pstack/skills/setup-pstack/SKILL.md')));
@@ -207,7 +207,7 @@ test('read-only delegates, program state and charts use real host features', () 
   assert.match(readFileSync(join(claude, 'skills/how/SKILL.md'), 'utf8'), /subagent_type: "pstack:poteto-readonly"/);
   assert.match(readFileSync(join(codex, 'skills/how/SKILL.md'), 'utf8'), /read-only is instructed, not enforced/i);
   for (const dir of [claude, codex]) {
-    assert.doesNotMatch(readFileSync(join(dir, 'skills/poteto-mode/playbooks/orchestrate.md'), 'utf8'), /Project store/);
+    assert.deepEqual(walk(dir).filter(p => p.endsWith('.md') && /Project store/.test(readFileSync(p, 'utf8'))), []);
     const ketchup = readFileSync(join(dir, 'skills/ketchup/SKILL.md'), 'utf8');
     assert.match(ketchup, /xychart-beta/);
     assert.doesNotMatch(ketchup, /visualize|native visualization tools/);
